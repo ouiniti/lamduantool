@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>เครื่องมือ รพ.ลำดวน</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600&family=Sarabun:wght@400;500;600&display=swap">
+<style>
+/* Layout: one calm column. A short masthead, then three clinical groups.
+   Cards stack on phones and sit two to a row from tablet width up. */
+:root {
+  --bg: #EEF3F0;
+  --surface: #F8FBF9;
+  --ink: #1D3634;
+  --muted: #56706C;
+  --line: #CBDBD5;
+  --accent: #2E6B66;
+  --accent-soft: #DCEBE6;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1B1A;
+    --surface: #162725;
+    --ink: #E2EEEA;
+    --muted: #9DB5B0;
+    --line: #2A3F3C;
+    --accent: #7EC2B6;
+    --accent-soft: #1F3B37;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1B1A;
+  --surface: #162725;
+  --ink: #E2EEEA;
+  --muted: #9DB5B0;
+  --line: #2A3F3C;
+  --accent: #7EC2B6;
+  --accent-soft: #1F3B37;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Sarabun", "Noto Sans Thai", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  padding-block: 32px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 40px; }
+
+.masthead { display: grid; gap: 10px; padding-top: 16px; }
+.eyebrow { margin: 0; font-size: 14px; font-weight: 500; color: var(--accent); }
+h1, h2, h3 {
+  font-family: "Prompt", "Sarabun", system-ui, sans-serif;
+  text-wrap: balance;
+  margin: 0;
+  line-height: 1.3;
+}
+h1 { font-size: clamp(26px, 6vw, 36px); font-weight: 600; }
+.lede { margin: 0; color: var(--muted); max-width: 60ch; }
+
+.group { display: grid; gap: 14px; }
+.group h2 { font-size: 18px; font-weight: 600; }
+.group-note { margin: 0; font-size: 14px; color: var(--muted); }
+
+.cards {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 640px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+a.card:hover { border-color: var(--accent); }
+a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.card h3 { font-size: 18px; font-weight: 600; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 4px; }
+.tag {
+  font-size: 13px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.go {
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.card.pending {
+  border-style: dashed;
+  background: transparent;
+}
+.card.pending .go { color: var(--muted); font-weight: 400; }
+
+.foot {
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">โรงพยาบาลลำดวน</p>
+    <h1>เครื่องมือช่วยงานคลินิก</h1>
+    <p class="lede">รวมเครื่องมือที่ใช้ประจำในการประเมินผู้ป่วย เตรียมก่อนผ่าตัดและหัตถการ และส่งต่อผู้ป่วย เปิดใช้จากมือถือหรือแท็บเล็ตได้ทันที</p>
+  </header>
+
+  <section class="group" aria-labelledby="g-assess">
+    <h2 id="g-assess">ประเมินผู้ป่วย</h2>
+    <div class="cards">
+      <a class="card" href="pain.html">
+        <h3>ประเมินความปวด</h3>
+        <p>เลือกเครื่องมือประเมินความปวดให้เหมาะกับผู้ป่วยแต่ละราย แล้วให้คะแนนได้ในไม่กี่คลิก</p>
+        <div class="tags"><span class="tag">มือถือ</span><span class="tag">แท็บเล็ต</span></div>
+        <span class="go">เปิดเครื่องมือ →</span>
+      </a>
+
+      <a class="card" href="malnutrition.html">
+        <h3>ประเมินภาวะทุพโภชนาการ → ICD-10</h3>
+        <p>ประเมินจาก BMI, NT และ NAF แล้วได้แนวทางวินิจฉัย การรักษา และรหัส ICD-10 (E43/E44) พร้อมข้อความคัดลอกไปบันทึก</p>
+        <div class="tags"><span class="tag">BMI</span><span class="tag">NT / NAF</span><span class="tag">ICD-10</span></div>
+        <span class="go">เปิดเครื่องมือ →</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="g-pre">
+    <h2 id="g-pre">เตรียมก่อนผ่าตัดและหัตถการ</h2>
+    <div class="cards">
+      <a class="card" href="preop-cardiac.html">
+        <h3>ประเมินหัวใจก่อนผ่าตัด</h3>
+        <p>ประเมินผู้ป่วยก่อนผ่าตัดที่ไม่ใช่หัวใจ ตามแนวทาง AHA/ACC 2026 พร้อมสรุปคำแนะนำเป็นภาษาไทย</p>
+        <div class="tags"><span class="tag">AHA/ACC 2026</span><span class="tag">สรุปไทย</span></div>
+        <span class="go">เปิดเครื่องมือ →</span>
+      </a>
+
+      <a class="card" href="preop-warfarin.html">
+        <h3>ยาต้านลิ่มเลือดก่อนหัตถการ</h3>
+        <p>แนวทางจัดการ warfarin, DOAC และยาต้านเกล็ดเลือดก่อนผ่าตัด หัตถการ และงานทันตกรรม ส่งออกเป็น PDF หรือคัดลอกข้อความได้</p>
+        <div class="tags"><span class="tag">Warfarin</span><span class="tag">DOAC</span><span class="tag">ทันตกรรม</span><span class="tag">PDF</span></div>
+        <span class="go">เปิดเครื่องมือ →</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="g-refer">
+    <h2 id="g-refer">การส่งต่อผู้ป่วย</h2>
+    <div class="cards">
+      <a class="card" href="refer.html">
+        <h3>แบบส่งต่อผู้ป่วย (Refer)</h3>
+        <p>เลือกโรคแล้วกรอกข้อมูล ระบบจะสร้างข้อความส่งต่อตามแม่แบบ พร้อมคัดลอกไปใช้ได้ทันที</p>
+        <div class="tags"><span class="tag">13 โรค</span><span class="tag">คัดลอกข้อความ</span></div>
+        <span class="go">เปิดเครื่องมือ →</span>
+      </a>
+    </div>
+  </section>
+
+  <p class="foot">เครื่องมือเหล่านี้ช่วยประกอบการตัดสินใจ ไม่แทนดุลยพินิจทางการแพทย์ กรุณาตรวจสอบกับแนวทางเวชปฏิบัติและข้อมูลของผู้ป่วยทุกครั้งก่อนใช้งาน</p>
+</main>
+
+</body>
+</html>

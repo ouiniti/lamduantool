@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แบบส่งต่อผู้ป่วย</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600&family=Sarabun:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one centered column. Home lists diseases by organ system; each
+   form is a stack of sections; output is a plain editable text area. */
+:root {
+  --bg: #EEF3F0;
+  --surface: #F8FBF9;
+  --ink: #1D3634;
+  --muted: #56706C;
+  --line: #CBDBD5;
+  --field: #FFFFFF;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1B1A;
+    --surface: #162725;
+    --ink: #E2EEEA;
+    --muted: #9DB5B0;
+    --line: #2A3F3C;
+    --field: #0F1B1A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1B1A;
+  --surface: #162725;
+  --ink: #E2EEEA;
+  --muted: #9DB5B0;
+  --line: #2A3F3C;
+  --field: #0F1B1A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Sarabun", "Noto Sans Thai", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  padding-block: 24px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--acc, #2E6B66); outline-offset: 2px; }
+
+.shell { max-width: 640px; margin: 0 auto; min-width: 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 26px 22px;
+  min-width: 0;
+}
+.title { font-family: "Prompt", "Sarabun", sans-serif; font-size: 20px; font-weight: 600; text-align: center; text-wrap: balance; }
+.sub { font-size: 14px; color: var(--muted); text-align: center; margin-top: 4px; }
+
+.group { margin-top: 22px; }
+.group-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.group-title { font-size: 13px; font-weight: 600; color: var(--muted); }
+.group-count { margin-left: auto; font-size: 12px; color: var(--muted); }
+
+.dis-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--field);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  min-width: 0;
+  transition: border-color 140ms ease;
+}
+.dis-btn:hover { border-color: var(--acc); }
+.dis-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--acc); flex-shrink: 0; }
+.dis-name { flex: 1; min-width: 0; }
+.dis-en { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; min-width: 0; }
+.header-title { font-family: "Prompt", "Sarabun", sans-serif; font-size: 17px; font-weight: 600; flex: 1; min-width: 0; text-wrap: balance; }
+.back {
+  border: none;
+  background: var(--line);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--acc);
+  border: 1px solid var(--acc);
+  border-radius: 999px;
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+
+.section {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 14px;
+  margin-top: 12px;
+  min-width: 0;
+}
+.section-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--ink); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+.label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.input, .select, .textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--field);
+  font-size: 15px;
+  outline: none;
+}
+.input:focus, .select:focus, .textarea:focus { border-color: var(--acc); }
+.input::placeholder { color: var(--muted); opacity: 0.7; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1px solid var(--line);
+  background: var(--field);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  text-align: left;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+.chip.on {
+  border-color: var(--acc);
+  color: var(--acc);
+  background: color-mix(in srgb, var(--acc) 12%, var(--field));
+  font-weight: 600;
+}
+
+.score {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--acc);
+  background: color-mix(in srgb, var(--acc) 10%, var(--field));
+  border-radius: 8px;
+  padding: 5px 10px;
+  line-height: 1.5;
+}
+
+.img-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.thumb { position: relative; width: 82px; height: 82px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb-x {
+  position: absolute; top: 3px; right: 3px;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: none; background: rgba(0, 0, 0, 0.7); color: #fff; font-size: 11px;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.img-add {
+  width: 82px; height: 82px; border-radius: 10px;
+  border: 1.5px dashed var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--muted); text-align: center; cursor: pointer;
+}
+.out-imgs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.out-imgs img { width: 130px; height: 130px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+.out-imglabel { font-size: 13px; color: var(--muted); margin-top: 14px; font-weight: 600; }
+
+.primary {
+  width: 100%;
+  margin-top: 18px;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: var(--acc, #2E6B66);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+.secondary {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+}
+.link {
+  display: block;
+  margin: 14px auto 0;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.copy {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #2E6B66;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.mono {
+  width: 100%;
+  min-height: 320px;
+  padding: 14px;
+  font-family: "IBM Plex Mono", "Sarabun", monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--field);
+  resize: vertical;
+}
+.hint { font-size: 12.5px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+.center { text-align: center; }
+.phs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.ph {
+  border: 1px dashed var(--line);
+  background: var(--field);
+  color: var(--acc, #2E6B66);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+}
+.notice {
+  font-size: 13px;
+  color: var(--muted);
+  border-left: 2px solid var(--acc, #2E6B66);
+  padding: 8px 12px;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+.foot {
+  margin-top: 22px;
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.6;
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<a href="index.html" style="display:block;max-width:960px;margin:0 auto;padding:10px 16px;font:500 14px 'Sarabun','IBM Plex Sans Thai',sans-serif;color:#2E6B66;text-decoration:none">&larr; เครื่องมือ รพ.ลำดวน</a>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useRef } = React;
+
+// ---------- helpers ----------
+const bullets = (arr) => arr.map((x) => `- ${x}`).join("\n");
+const orDots = (v) => (v !== undefined && v !== null && String(v).trim() !== "" ? String(v).trim() : ".......");
+
+// ET tube block: แสดงเฉพาะเมื่อเลือกเบอร์หรือความลึก
+const etBlock = (v) =>
+  (v.et_size || v.et_depth)
+    ? `\n- on ET tube No. ${orDots(v.et_size)} fix depth ${orDots(v.et_depth)} cm ที่มุมปาก\n- film CXR portable หลังใส่ท่อ : ปลายท่ออยู่เหนือ carina ${orDots(v.et_carina)} cm`
+    : "";
+
+const ET_SECTION = {
+  title: "ET tube (ถ้าใส่ก่อนนำส่ง — เว้นว่างได้)",
+  fields: [
+    { key: "et_size", label: "เบอร์ท่อ (No.)", type: "select", options: ["7.0", "7.5", "8.0"], half: true },
+    { key: "et_depth", label: "ความลึกที่มุมปาก (cm)", type: "select", options: ["16", "18", "20", "22"], half: true },
+    { key: "et_carina", label: "CXR: ปลายท่อเหนือ carina (cm)", type: "text", ph: "เช่น 4", half: true, inputMode: "decimal" },
+  ],
+};
+
+const DURATIONS_LONG = ["1 เดือน", "3 เดือน", "6 เดือน", "1 ปี", "2 ปี", "มากกว่า 2 ปี"];
+const DURATIONS_SHORT = ["1 วัน", "2 วัน", "3 วัน", "5 วัน", "1 สัปดาห์", "2 สัปดาห์"];
+const DURATIONS_MID = ["2 สัปดาห์", "1 เดือน", "2 เดือน", "3 เดือน", "6 เดือน", "1 ปี"];
+
+// ---------- กลุ่มโรคตามระบบอวัยวะ ----------
+const GROUPS = [
+  { id: "eye", name: "ตา" },
+  { id: "ent", name: "หู คอ จมูก" },
+  { id: "heart", name: "หัวใจ" },
+  { id: "lung", name: "ปอด" },
+  { id: "liver", name: "ตับและทางเดินอาหาร" },
+  { id: "kidney", name: "ไต" },
+  { id: "bone", name: "กระดูกและข้อ" },
+  { id: "infect", name: "ติดเชื้อ" },
+  { id: "endo", name: "ต่อมไร้ท่อ" },
+];
+const DISEASE_GROUP = {
+  cataract: "eye",
+  osa: "ent", snhl: "ent", dysphagia: "ent",
+  chf: "heart", angina: "heart",
+  lungmass: "lung",
+  hbv: "liver", hcc: "liver",
+  nephro: "kidney",
+  oaknee: "bone",
+  sepsis: "infect",
+  hyperthyroid: "endo",
+};
+
+// ---------- built-in diseases ----------
+const BUILT_IN = [
+  {
+    id: "cataract",
+    name: "โรคต้อกระจก",
+    en: "Cataract",
+    color: "#2563EB",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 65", half: true, inputMode: "numeric" },
+          { key: "duration", label: "ระยะเวลาที่ตามัว", type: "select", options: DURATIONS_LONG, def: "1 ปี" },
+          {
+            key: "negatives", label: "อาการที่ไม่พบ (แตะเลือก)", type: "chips", join: "space",
+            options: ["ไม่มีอาการเคืองตา", "ไม่มีตาแดง", "ไม่มีปวดตา", "ไม่เห็นแสงวาบ"],
+            def: ["ไม่มีอาการเคืองตา", "ไม่มีตาแดง"],
+          },
+        ],
+      },
+      {
+        title: "สัญญาณชีพ (Vital Signs)",
+        fields: [
+          { key: "bp", label: "ความดันโลหิต (BP)", type: "text", ph: "เช่น 120/80", half: true },
+          { key: "hr", label: "ชีพจร (HR)", type: "text", ph: "เช่น 72", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "ความคมชัดในการมองเห็น (Visual Acuity)",
+        fields: [
+          { key: "va_rt", label: "ตาขวา (Right eye)", type: "text", ph: "เช่น 6/60", half: true },
+          { key: "va_lt", label: "ตาซ้าย (Left eye)", type: "text", ph: "เช่น 6/60", half: true },
+          {
+            key: "side", label: "ตาข้างที่มีอาการ", type: "select",
+            options: [
+              { label: "ตาขวา (Rt eye)", value: "Rt eye" },
+              { label: "ตาซ้าย (Lt eye)", value: "Lt eye" },
+              { label: "ตาทั้งสองข้าง (both eyes)", value: "both eyes" },
+            ],
+            def: "both eyes",
+          },
+        ],
+      },
+    ],
+    derive: (v) => ({
+      negative: (v.negatives || []).join(" "),
+      side_en: v.side || "both eyes",
+    }),
+    template: `ผู้ป่วย{sex} อายุ {age} ปี ตาพร่ามัวมากมา {duration} มองเห็นลำบาก {negative}
+
+PE : Vital sign BP {bp} mmHg, HR {hr}
+Visual acuity RT eye {va_rt}, LT eye {va_lt}
+
+opacity of lens of {side_en}
+
+diagnosis : cataract of {side_en}
+
+management : consult eye for surgery{note_line}`,
+  },
+
+  {
+    id: "oaknee",
+    name: "โรคข้อเข่าเสื่อม",
+    en: "OA Knee",
+    color: "#16A34A",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 80", half: true, inputMode: "numeric" },
+          {
+            key: "side", label: "ขาข้างที่เป็น", type: "select",
+            options: [
+              { label: "ขาขวา (Rt knee)", value: "Rt knee" },
+              { label: "ขาซ้าย (Lt knee)", value: "Lt knee" },
+              { label: "ทั้งสองข้าง (both knees)", value: "both knees" },
+            ],
+            def: "Rt knee", half: true,
+          },
+          { key: "duration", label: "ระยะเวลาที่ปวด", type: "select", options: DURATIONS_LONG, def: "1 ปี", half: true },
+          {
+            key: "symptom", label: "คำบรรยายอาการ", type: "select",
+            options: [
+              "เดินลำบากมากขึ้น ปวดรับยาแก้ปวดอาการไม่ทุเลา",
+              "ปวดมากเวลาเดินขึ้นลงบันได",
+              "เข่าฝืดตึงตอนเช้า เหยียดงอได้ไม่สุด",
+              "ปวดจนรบกวนการใช้ชีวิตประจำวัน",
+            ],
+          },
+        ],
+      },
+      {
+        title: "สัญญาณชีพ (Vital Signs)",
+        fields: [
+          { key: "bp", label: "ความดันโลหิต (BP)", type: "text", ph: "เช่น 130/80", half: true },
+          { key: "hr", label: "ชีพจร (HR)", type: "text", ph: "เช่น 80", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "ตรวจร่างกาย (แตะเลือก)",
+        fields: [
+          {
+            key: "pe", label: "สิ่งที่ตรวจพบ", type: "chips", join: "comma",
+            options: ["deformity of knee", "osteohypertrophy", "genu varus", "genu valgus", "crepitus on motion", "limited ROM", "no redness", "no effusion", "effusion"],
+            def: ["deformity of knee", "osteohypertrophy", "no redness", "no effusion", "genu varus"],
+          },
+        ],
+      },
+      {
+        title: "การรักษา (แตะเลือก)",
+        fields: [
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "consult orthopedic for surgery",
+              "para (500) 1 tab prn q 6 hr",
+              "tramol 50 mg iv prn q 6 hr",
+              "naproxen (250) 1x2 pc",
+              "ส่งนวดประคบแผนไทยที่ รพ.ลำดวน",
+              "แนะนำลดน้ำหนัก บริหารกล้ามเนื้อรอบเข่า",
+            ],
+            def: ["consult orthopedic for surgery", "para (500) 1 tab prn q 6 hr", "tramol 50 mg iv prn q 6 hr", "ส่งนวดประคบแผนไทยที่ รพ.ลำดวน"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => {
+      const map = { "Rt knee": "ขวา", "Lt knee": "ซ้าย", "both knees": "ทั้งสองข้าง" };
+      return { side_th: map[v.side] || ".......", side_en: v.side || "......." };
+    },
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการปวดขาข้าง{side_th} ({side_en}) เป็นมากมา {duration} {symptom}
+
+physical examination
+Vital sign BP {bp} mmHg, HR {hr}
+
+{pe}
+
+diagnosis : OA knee of {side_en}
+
+management :
+{management}{note_line}`,
+  },
+
+  {
+    id: "chf",
+    name: "ภาวะหัวใจล้มเหลว",
+    en: "CHF",
+    color: "#E11D48",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 70", half: true, inputMode: "numeric" },
+          {
+            key: "symptoms", label: "อาการ (แตะเลือก)", type: "chips", join: "space",
+            options: ["เหนื่อยง่ายเวลาออกแรง", "นอนราบไม่ได้ (orthopnea)", "ตื่นมาหอบตอนกลางคืน (PND)", "ขาบวมทั้ง 2 ข้าง", "น้ำหนักตัวเพิ่มขึ้น", "ไอตอนกลางคืน"],
+            def: ["เหนื่อยง่ายเวลาออกแรง", "นอนราบไม่ได้ (orthopnea)", "ขาบวมทั้ง 2 ข้าง"],
+          },
+          { key: "duration", label: "เป็นมากขึ้นมา", type: "select", options: DURATIONS_SHORT.concat(["1 เดือน"]), def: "1 สัปดาห์", half: true },
+          { key: "nyha", label: "NYHA class", type: "select", options: ["I", "II", "III", "IV"], def: "III", half: true },
+        ],
+      },
+      {
+        title: "สัญญาณชีพแรกรับ (Vital Signs)",
+        fields: [
+          { key: "bp", label: "BP", type: "text", ph: "เช่น 150/90", half: true },
+          { key: "hr", label: "HR", type: "text", ph: "เช่น 110", half: true, inputMode: "numeric" },
+          { key: "rr", label: "RR", type: "text", ph: "เช่น 26", half: true, inputMode: "numeric" },
+          { key: "o2sat", label: "O₂ sat (%)", type: "text", ph: "เช่น 92", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "ตรวจร่างกาย (แตะเลือก)",
+        fields: [
+          {
+            key: "pe", label: "สิ่งที่ตรวจพบ", type: "chips", join: "comma",
+            options: ["fine crepitation both lungs", "pitting edema both legs", "engorged neck vein", "irregularly irregular pulse", "hepatomegaly", "no cyanosis"],
+            def: ["fine crepitation both lungs", "pitting edema both legs", "engorged neck vein"],
+          },
+        ],
+      },
+      {
+        title: "ผลตรวจเพิ่มเติม (ถ้ามี — เว้นว่างได้)",
+        fields: [
+          { key: "cxr", label: "CXR", type: "chips", join: "comma", options: ["cardiomegaly", "pulmonary congestion", "bilateral pleural effusion"], def: [] },
+          { key: "ef", label: "EF จาก echo (%)", type: "text", ph: "เช่น 35", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "การรักษาเบื้องต้น — Initial treatment (แตะเลือก)",
+        fields: [
+          {
+            key: "initial_tx", label: "สิ่งที่ให้ไปแล้ว", type: "chips", join: "bullet",
+            options: [
+              "O2 cannula 3 LPM keep O2 sat > 95%",
+              "O2 mask with bag 10 LPM",
+              "Lasix 40 mg IV stat",
+              "repeat Lasix 80 mg IV",
+              "NTG drip titrate",
+              "retained foley catheter, record I/O",
+              "จำกัดน้ำ 1,000 ml/day, งด IV fluid",
+              "จัดท่านั่งศีรษะสูง",
+            ],
+            def: ["O2 cannula 3 LPM keep O2 sat > 95%", "Lasix 40 mg IV stat", "retained foley catheter, record I/O", "จำกัดน้ำ 1,000 ml/day, งด IV fluid"],
+          },
+        ],
+      },
+      {
+        title: "การตอบสนองหลังการรักษา — Response (แตะเลือก)",
+        fields: [
+          { key: "bp2", label: "BP หลังรักษา", type: "text", ph: "เช่น 100/60", half: true },
+          { key: "hr2", label: "HR หลังรักษา", type: "text", ph: "เช่น 120", half: true, inputMode: "numeric" },
+          { key: "rr2", label: "RR หลังรักษา", type: "text", ph: "เช่น 30", half: true, inputMode: "numeric" },
+          { key: "o2sat2", label: "O₂ sat หลังรักษา (%)", type: "text", ph: "เช่น 88", half: true, inputMode: "numeric" },
+          { key: "urine", label: "urine output หลังให้ยาขับปัสสาวะ", type: "text", ph: "เช่น 100 ml ใน 1 ชม. / ออกน้อยมาก", half: true },
+          {
+            key: "response", label: "อาการที่ทำให้ต้อง refer", type: "chips", join: "space",
+            options: [
+              "ยังหอบเหนื่อยมาก นอนราบไม่ได้",
+              "O2 sat ยังต่ำแม้ให้ O2 แล้ว",
+              "ปัสสาวะออกน้อยแม้ให้ยาขับปัสสาวะ",
+              "ความดันโลหิตต่ำลง",
+              "ซึมลง",
+              "ฟังปอดพบ crepitation เพิ่มขึ้น",
+              "อาการโดยรวมไม่ดีขึ้น",
+            ],
+            def: ["ยังหอบเหนื่อยมาก นอนราบไม่ได้", "O2 sat ยังต่ำแม้ให้ O2 แล้ว"],
+          },
+        ],
+      },
+      ET_SECTION,
+      {
+        title: "การวินิจฉัยและส่งต่อ (แตะเลือก)",
+        fields: [
+          {
+            key: "dx", label: "การวินิจฉัยสุดท้าย", type: "select",
+            options: ["Congestive heart failure", "acute decompensated heart failure", "acute pulmonary edema", "cardiogenic shock"],
+            def: "Congestive heart failure",
+          },
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "refer รพ.แม่ข่ายเพื่อการรักษาต่อเนื่อง",
+              "refer for echocardiogram",
+              "ให้ O2 mask with bag ระหว่างนำส่ง",
+              "จัดท่านั่งศีรษะสูงระหว่างนำส่ง",
+              "ประสานศูนย์ส่งต่อ แจ้งอาการล่วงหน้า",
+              "consult อายุรกรรม",
+            ],
+            def: ["refer รพ.แม่ข่ายเพื่อการรักษาต่อเนื่อง", "ประสานศูนย์ส่งต่อ แจ้งอาการล่วงหน้า"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => {
+      const lines = [];
+      if ((v.cxr || []).length) lines.push(`CXR : ${v.cxr.join(", ")}`);
+      if (v.ef && v.ef.trim()) lines.push(`Echo : EF ${v.ef.trim()}%`);
+      return {
+        invest_block: lines.length ? `\n${lines.join("\n")}\n` : "",
+        et_block: etBlock(v),
+      };
+    },
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{symptoms} เป็นมากขึ้นมา {duration}
+
+physical examination แรกรับ
+Vital sign BP {bp} mmHg, HR {hr}, RR {rr}, O2 sat {o2sat}%
+{pe}
+{invest_block}
+initial diagnosis : Congestive heart failure (NYHA class {nyha})
+
+initial treatment :
+{initial_tx}
+
+response after initial treatment :
+Vital sign BP {bp2} mmHg, HR {hr2}, RR {rr2}, O2 sat {o2sat2}%, urine output {urine}
+{response}
+
+diagnosis : {dx}
+
+management :
+{management}{et_block}{note_line}`,
+  },
+
+  {
+    id: "sepsis",
+    name: "ภาวะติดเชื้อในกระแสเลือด",
+    en: "Sepsis",
+    color: "#7C3AED",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 75", half: true, inputMode: "numeric" },
+          {
+            key: "source", label: "source ที่สงสัย", type: "select",
+            options: [
+              { label: "ปอดอักเสบ (pneumonia)", value: "pneumonia" },
+              { label: "ทางเดินปัสสาวะ (UTI)", value: "urinary tract infection" },
+              { label: "ผิวหนัง (skin & soft tissue)", value: "skin and soft tissue infection" },
+              { label: "ช่องท้อง (intra-abdominal)", value: "intra-abdominal infection" },
+              { label: "ไม่ทราบแหล่ง (unknown)", value: "unknown source" },
+            ],
+            def: "pneumonia",
+          },
+          {
+            key: "symptoms", label: "อาการนำ (แตะเลือก)", type: "chips", join: "space",
+            options: ["ไข้สูง หนาวสั่น", "ไอ มีเสมหะ", "หอบเหนื่อย", "ปัสสาวะแสบขัด ขุ่น", "ปวดท้อง", "ผิวหนังปวดบวมแดงร้อน", "ซึมลง ทานได้น้อย", "อ่อนเพลีย"],
+            def: ["ไข้สูง หนาวสั่น"],
+          },
+          { key: "duration", label: "ระยะเวลา", type: "select", options: DURATIONS_SHORT, def: "2 วัน" },
+        ],
+      },
+      {
+        title: "สัญญาณชีพแรกรับ (Vital Signs)",
+        fields: [
+          { key: "temp", label: "Temp (°C)", type: "text", ph: "เช่น 39.2", half: true, inputMode: "decimal" },
+          { key: "bp", label: "BP", type: "text", ph: "เช่น 90/60", half: true },
+          { key: "hr", label: "HR", type: "text", ph: "เช่น 120", half: true, inputMode: "numeric" },
+          { key: "rr", label: "RR", type: "text", ph: "เช่น 24", half: true, inputMode: "numeric" },
+          { key: "o2sat", label: "O₂ sat (%)", type: "text", ph: "เช่น 94", half: true, inputMode: "numeric" },
+          {
+            key: "conscious", label: "ความรู้สึกตัว", type: "select",
+            options: [
+              { label: "รู้สึกตัวดี (alert)", value: "alert" },
+              { label: "ซึม (drowsy)", value: "drowsy" },
+              { label: "สับสน (confusion)", value: "confusion" },
+            ],
+            def: "alert", half: true,
+          },
+        ],
+      },
+      {
+        title: "ตรวจร่างกาย (แตะเลือก)",
+        fields: [
+          {
+            key: "pe", label: "สิ่งที่ตรวจพบ", type: "chips", join: "comma",
+            options: ["crepitation Rt lung", "crepitation Lt lung", "CVA tenderness", "abdominal tenderness", "cellulitis of leg", "no stiffness of neck", "capillary refill > 2 sec"],
+            def: [],
+          },
+        ],
+      },
+      {
+        title: "การรักษาเบื้องต้น — Initial treatment (แตะเลือก)",
+        fields: [
+          {
+            key: "initial_tx", label: "สิ่งที่ให้ไปแล้ว", type: "chips", join: "bullet",
+            options: [
+              "load NSS 1,500 ml IV then 100 ml/hr",
+              "H/C x 2 specimens ก่อนให้ยา",
+              "ceftriaxone 2 g IV OD",
+              "meropenem 1 g IV q 8 hr",
+              "norepinephrine (Levophed) drip titrate keep MAP ≥ 65 mmHg",
+              "O2 cannula keep O2 sat > 95%",
+              "retained foley catheter, record urine output",
+            ],
+            def: ["load NSS 1,500 ml IV then 100 ml/hr", "H/C x 2 specimens ก่อนให้ยา", "ceftriaxone 2 g IV OD", "retained foley catheter, record urine output"],
+          },
+        ],
+      },
+      {
+        title: "การตอบสนองหลังการรักษา — Response (แตะเลือก)",
+        fields: [
+          { key: "bp2", label: "BP หลังรักษา", type: "text", ph: "เช่น 80/50", half: true },
+          { key: "hr2", label: "HR หลังรักษา", type: "text", ph: "เช่น 130", half: true, inputMode: "numeric" },
+          { key: "o2sat2", label: "O₂ sat หลังรักษา (%)", type: "text", ph: "เช่น 90", half: true, inputMode: "numeric" },
+          { key: "urine", label: "urine output", type: "text", ph: "เช่น 20 ml ใน 2 ชม. / ไม่ออกเลย", half: true },
+          {
+            key: "response", label: "อาการที่ทำให้ต้อง refer", type: "chips", join: "space",
+            options: [
+              "ความดันโลหิตยังต่ำแม้ load สารน้ำครบแล้ว",
+              "ปัสสาวะไม่ออก/ออกน้อยมาก",
+              "หอบเหนื่อยมากขึ้น O2 sat ลดลง",
+              "ซึมลงกว่าแรกรับ",
+              "ไข้ยังสูงต่อเนื่อง",
+              "ต้องเพิ่มขนาด vasopressor",
+              "อาการโดยรวมไม่ดีขึ้น",
+            ],
+            def: ["ความดันโลหิตยังต่ำแม้ load สารน้ำครบแล้ว"],
+          },
+        ],
+      },
+      ET_SECTION,
+      {
+        title: "การวินิจฉัยและส่งต่อ (แตะเลือก)",
+        fields: [
+          {
+            key: "dx", label: "การวินิจฉัยสุดท้าย", type: "select",
+            options: ["sepsis", "septic shock"], def: "sepsis",
+          },
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "refer รพ.แม่ข่ายเพื่อการรักษาต่อเนื่อง",
+              "on norepinephrine drip ระหว่างนำส่ง",
+              "ให้ O2 ระหว่างนำส่ง",
+              "ประสานศูนย์ส่งต่อ แจ้งอาการล่วงหน้า",
+            ],
+            def: ["refer รพ.แม่ข่ายเพื่อการรักษาต่อเนื่อง", "ประสานศูนย์ส่งต่อ แจ้งอาการล่วงหน้า"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => {
+      let q = 0;
+      const rr = parseFloat(v.rr);
+      if (!isNaN(rr) && rr >= 22) q++;
+      const sbp = parseFloat(String(v.bp || "").split("/")[0]);
+      if (!isNaN(sbp) && sbp <= 100) q++;
+      if (v.conscious && v.conscious !== "alert") q++;
+      return {
+        qsofa: `${q}/3`,
+        pe: (v.pe || []).length ? (v.pe || []).join(", ") : "no other significant findings",
+        et_block: etBlock(v),
+      };
+    },
+    liveScore: { afterTitle: "สัญญาณชีพ", text: (v, d) => `qSOFA คำนวณอัตโนมัติ : ${d.derive(v).qsofa}` },
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{symptoms} มา {duration}
+
+physical examination แรกรับ
+Vital sign T {temp} °C, BP {bp} mmHg, HR {hr}, RR {rr}, O2 sat {o2sat}%
+consciousness : {conscious}
+{pe}
+
+qSOFA score = {qsofa}
+
+initial diagnosis : sepsis, suspected {source}
+
+initial treatment :
+{initial_tx}
+
+response after initial treatment :
+Vital sign BP {bp2} mmHg, HR {hr2}, O2 sat {o2sat2}%, urine output {urine}
+{response}
+
+diagnosis : {dx}, suspected {source}
+
+management :
+{management}{et_block}{note_line}`,
+  },
+
+  {
+    id: "hyperthyroid",
+    name: "ไทรอยด์เป็นพิษ",
+    en: "Hyperthyroid",
+    color: "#D97706",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["หญิง", "ชาย"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 35", half: true, inputMode: "numeric" },
+          {
+            key: "symptoms", label: "อาการ (แตะเลือก)", type: "chips", join: "space",
+            options: ["ใจสั่น", "น้ำหนักลดทั้งที่ทานได้ปกติ", "มือสั่น", "ขี้ร้อน เหงื่อออกง่าย", "ถ่ายเหลวบ่อย", "เหนื่อยง่าย", "นอนไม่หลับ หงุดหงิดง่าย"],
+            def: ["ใจสั่น", "น้ำหนักลดทั้งที่ทานได้ปกติ", "มือสั่น", "ขี้ร้อน เหงื่อออกง่าย"],
+          },
+          { key: "duration", label: "ระยะเวลา", type: "select", options: DURATIONS_MID, def: "2 เดือน", half: true },
+          { key: "wtloss", label: "น้ำหนักลด (กก. — เว้นว่างได้)", type: "text", ph: "เช่น 5", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "สัญญาณชีพ (Vital Signs)",
+        fields: [
+          { key: "bp", label: "BP", type: "text", ph: "เช่น 130/70", half: true },
+          { key: "hr", label: "HR", type: "text", ph: "เช่น 110", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "ตรวจร่างกาย (แตะเลือก)",
+        fields: [
+          {
+            key: "pe", label: "สิ่งที่ตรวจพบ", type: "chips", join: "comma",
+            options: ["diffuse thyroid gland enlargement", "thyroid bruit", "exophthalmos", "fine tremor of both hands", "warm and moist skin", "tachycardia", "irregularly irregular pulse (AF)"],
+            def: ["diffuse thyroid gland enlargement", "fine tremor of both hands", "tachycardia"],
+          },
+        ],
+      },
+      {
+        title: "ผล TFT (ถ้ามี — เว้นว่างได้)",
+        fields: [
+          { key: "tsh", label: "TSH", type: "text", ph: "เช่น < 0.01", half: true },
+          { key: "ft4", label: "FT4", type: "text", ph: "เช่น 4.2", half: true },
+        ],
+      },
+      {
+        title: "การรักษา (แตะเลือก)",
+        fields: [
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "propranolol (10) 1x3 pc",
+              "methimazole (5) 1x3 pc",
+              "ส่งตรวจ TFT (TSH, FT4, FT3)",
+              "refer อายุรกรรม",
+              "แนะนำงดสูบบุหรี่",
+            ],
+            def: ["propranolol (10) 1x3 pc", "ส่งตรวจ TFT (TSH, FT4, FT3)", "refer อายุรกรรม"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => ({
+      weight_line: v.wtloss && v.wtloss.trim() ? ` น้ำหนักลด ${v.wtloss.trim()} กก.` : "",
+      lab_line: (v.tsh && v.tsh.trim()) || (v.ft4 && v.ft4.trim())
+        ? `\nTFT : TSH ${orDots(v.tsh)}, FT4 ${orDots(v.ft4)}\n`
+        : "",
+    }),
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{symptoms} มาประมาณ {duration}{weight_line}
+
+physical examination
+Vital sign BP {bp} mmHg, HR {hr}
+{pe}
+{lab_line}
+diagnosis : clinical hyperthyroidism
+
+management :
+{management}{note_line}`,
+  },
+
+  {
+    id: "osa",
+    name: "ภาวะหยุดหายใจขณะหลับ",
+    en: "OSA",
+    color: "#0891B2",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 45", half: true, inputMode: "numeric" },
+          {
+            key: "symptoms", label: "อาการ (แตะเลือก)", type: "chips", join: "space",
+            options: ["นอนกรนเสียงดัง", "มีคนเห็นหยุดหายใจขณะหลับ", "ง่วงนอนมากตอนกลางวัน", "ตื่นมาไม่สดชื่น ปวดศีรษะตอนเช้า", "สะดุ้งตื่นกลางดึกเหมือนสำลัก", "เคยหลับในขณะขับรถ"],
+            def: ["นอนกรนเสียงดัง", "มีคนเห็นหยุดหายใจขณะหลับ", "ง่วงนอนมากตอนกลางวัน"],
+          },
+          { key: "duration", label: "ระยะเวลา", type: "select", options: DURATIONS_LONG, def: "1 ปี" },
+        ],
+      },
+      {
+        title: "ข้อมูลร่างกาย",
+        fields: [
+          { key: "weight", label: "น้ำหนัก (kg)", type: "text", ph: "เช่น 95", half: true, inputMode: "decimal" },
+          { key: "height", label: "ส่วนสูง (cm)", type: "text", ph: "เช่น 170", half: true, inputMode: "decimal" },
+          { key: "neck", label: "รอบคอ (cm — เว้นว่างได้)", type: "text", ph: "เช่น 42", half: true, inputMode: "decimal" },
+          {
+            key: "underlying", label: "โรคประจำตัว (แตะเลือก)", type: "chips", join: "comma",
+            options: ["ความดันโลหิตสูง (HTN)", "เบาหวาน (DM)", "ไขมันในเลือดสูง (DLP)", "โรคหัวใจ"],
+            def: [],
+          },
+        ],
+      },
+      {
+        title: "สัญญาณชีพ (Vital Signs)",
+        fields: [
+          { key: "bp", label: "BP", type: "text", ph: "เช่น 140/90", half: true },
+          { key: "hr", label: "HR", type: "text", ph: "เช่น 80", half: true, inputMode: "numeric" },
+          { key: "o2sat", label: "O₂ sat (%)", type: "text", ph: "เช่น 97", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "ตรวจร่างกาย (แตะเลือก)",
+        fields: [
+          {
+            key: "pe", label: "สิ่งที่ตรวจพบ", type: "chips", join: "comma",
+            options: ["enlarged tonsils", "elongated uvula", "high arched palate", "retrognathia", "deviated nasal septum", "hypertrophy of inferior turbinates"],
+            def: [],
+          },
+          { key: "mallampati", label: "Mallampati class", type: "select", options: ["I", "II", "III", "IV"], half: true },
+        ],
+      },
+      {
+        title: "การรักษา (แตะเลือก)",
+        fields: [
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "refer ENT for evaluation and sleep test",
+              "แนะนำลดน้ำหนัก",
+              "แนะนำนอนตะแคง หลีกเลี่ยงท่านอนหงาย",
+              "งดเครื่องดื่มแอลกอฮอล์และยานอนหลับก่อนนอน",
+              "หลีกเลี่ยงการขับรถขณะง่วง",
+            ],
+            def: ["refer ENT for evaluation and sleep test", "แนะนำลดน้ำหนัก", "งดเครื่องดื่มแอลกอฮอล์และยานอนหลับก่อนนอน"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => {
+      // STOP-BANG: Snoring, Tiredness, Observed apnea, Pressure(HTN), BMI>35, Age>50, Neck>40cm, Gender male
+      const sym = v.symptoms || [];
+      const und = v.underlying || [];
+      const wt = parseFloat(v.weight);
+      const ht = parseFloat(v.height);
+      const bmi = wt > 0 && ht > 0 ? wt / Math.pow(ht / 100, 2) : NaN;
+      const neck = parseFloat(v.neck);
+      const age = parseFloat(v.age);
+      let s = 0;
+      if (sym.includes("นอนกรนเสียงดัง")) s++;
+      if (sym.includes("ง่วงนอนมากตอนกลางวัน") || sym.includes("ตื่นมาไม่สดชื่น ปวดศีรษะตอนเช้า")) s++;
+      if (sym.includes("มีคนเห็นหยุดหายใจขณะหลับ")) s++;
+      if (und.some((u) => u.includes("HTN"))) s++;
+      if (!isNaN(bmi) && bmi > 35) s++;
+      if (!isNaN(age) && age > 50) s++;
+      if (!isNaN(neck) && neck > 40) s++;
+      if (v.sex === "ชาย") s++;
+      const risk = s >= 5 ? "high risk" : s >= 3 ? "intermediate risk" : "low risk";
+      return {
+        underlying_txt: und.length ? und.join(", ") : "ปฏิเสธโรคประจำตัว",
+        bmi_line: !isNaN(bmi) ? ` (BMI ${bmi.toFixed(1)} kg/m²)` : "",
+        neck_line: v.neck && String(v.neck).trim() ? `, รอบคอ ${String(v.neck).trim()} cm` : "",
+        pe: (v.pe || []).length ? (v.pe || []).join(", ") : "no gross abnormality of upper airway",
+        stopbang: `${s}/8`,
+        stopbang_risk: risk,
+      };
+    },
+    liveScore: {
+      afterTitle: "ข้อมูลร่างกาย",
+      text: (v, d) => {
+        const x = d.derive(v);
+        return `STOP-BANG คำนวณอัตโนมัติ : ${x.stopbang} (${x.stopbang_risk})`;
+      },
+    },
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{symptoms} มาประมาณ {duration}
+underlying : {underlying_txt}
+
+physical examination
+Vital sign BP {bp} mmHg, HR {hr}, O2 sat {o2sat}%
+BW {weight} kg, Ht {height} cm{bmi_line}{neck_line}
+{pe}
+Mallampati class {mallampati}
+
+STOP-BANG score = {stopbang} ({stopbang_risk})
+
+diagnosis : clinical obstructive sleep apnea (OSA)
+
+management :
+{management}{note_line}`,
+  },
+
+  {
+    id: "snhl",
+    name: "ประสาทหูเสื่อม",
+    en: "SNHL",
+    color: "#DB2777",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 60", half: true, inputMode: "numeric" },
+          {
+            key: "side", label: "หูข้างที่มีอาการ", type: "select",
+            options: [
+              { label: "หูขวา (Rt ear)", value: "Rt ear" },
+              { label: "หูซ้าย (Lt ear)", value: "Lt ear" },
+              { label: "ทั้งสองข้าง (both ears)", value: "both ears" },
+            ],
+            half: true,
+          },
+          {
+            key: "onset", label: "ลักษณะการเกิด", type: "select",
+            options: [
+              { label: "เฉียบพลัน ภายใน 72 ชม. (sudden)", value: "sudden" },
+              { label: "ค่อยเป็นค่อยไป (gradual)", value: "gradual" },
+            ],
+            def: "gradual", half: true,
+          },
+          { key: "duration", label: "ระยะเวลา", type: "select", options: DURATIONS_SHORT.concat(DURATIONS_MID), def: "1 เดือน" },
+          {
+            key: "symptoms", label: "อาการร่วม (แตะเลือก)", type: "chips", join: "space",
+            options: ["การได้ยินลดลง", "มีเสียงดังในหู (tinnitus)", "เวียนศีรษะบ้านหมุน (vertigo)", "แน่นหู หูอื้อ", "ไม่มีปวดหู", "ไม่มีน้ำหรือหนองไหลจากหู"],
+            def: ["การได้ยินลดลง", "ไม่มีปวดหู", "ไม่มีน้ำหรือหนองไหลจากหู"],
+          },
+        ],
+      },
+      {
+        title: "สัญญาณชีพ (Vital Signs)",
+        fields: [
+          { key: "bp", label: "BP", type: "text", ph: "เช่น 130/80", half: true },
+          { key: "hr", label: "HR", type: "text", ph: "เช่น 78", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "ตรวจหู (แตะเลือก)",
+        fields: [
+          {
+            key: "pe", label: "ear exam", type: "chips", join: "comma",
+            options: ["tympanic membrane intact both ears", "no discharge in ear canal", "impacted cerumen", "no vesicle at pinna and ear canal"],
+            def: ["tympanic membrane intact both ears", "no discharge in ear canal"],
+          },
+          {
+            key: "weber", label: "Weber test", type: "select",
+            options: ["midline", "lateralized to Rt ear", "lateralized to Lt ear"],
+            half: true,
+          },
+          {
+            key: "rinne", label: "Rinne test", type: "select",
+            options: ["positive (AC > BC) both ears", "negative Rt ear", "negative Lt ear", "negative both ears"],
+            half: true,
+          },
+        ],
+      },
+      {
+        title: "การรักษา (แตะเลือก)",
+        fields: [
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "refer ENT for audiogram and evaluation",
+              "refer ENT ด่วน (sudden SNHL ควรได้รับการรักษาโดยเร็ว)",
+              "แนะนำหลีกเลี่ยงการสัมผัสเสียงดัง",
+              "งดแคะหู",
+            ],
+            def: ["refer ENT for audiogram and evaluation"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => {
+      const sideTh = { "Rt ear": "ขวา", "Lt ear": "ซ้าย", "both ears": "ทั้งสองข้าง" };
+      const sudden = v.onset === "sudden";
+      return {
+        side_th: sideTh[v.side] || ".......",
+        side_en: v.side || ".......",
+        onset_th: sudden ? "เฉียบพลัน" : "ค่อยเป็นค่อยไป",
+        sudden_dx: sudden ? ", r/o sudden sensorineural hearing loss" : "",
+        sudden_line: sudden ? "\n** sudden hearing loss เป็นภาวะเร่งด่วน ควรได้รับการประเมินโดย ENT โดยเร็วที่สุด **" : "",
+      };
+    },
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{symptoms} ข้าง{side_th} ({side_en}) แบบ{onset_th} มา {duration}
+
+physical examination
+Vital sign BP {bp} mmHg, HR {hr}
+ear exam : {pe}
+tuning fork test : Weber {weber}, Rinne {rinne}
+
+diagnosis : sensorineural hearing loss of {side_en}{sudden_dx}{sudden_line}
+
+management :
+{management}{note_line}`,
+  },
+
+  {
+    id: "dysphagia",
+    name: "กลืนลำบาก",
+    en: "Dysphagia r/o CA",
+    color: "#4F46E5",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 65", half: true, inputMode: "numeric" },
+          {
+            key: "character", label: "ลักษณะการกลืนลำบาก", type: "select",
+            options: [
+              "กลืนลำบากเฉพาะอาหารแข็ง",
+              "กลืนลำบากทั้งอาหารแข็งและอาหารเหลว",
+              "กลืนลำบากมากขึ้นเรื่อยๆ จากอาหารแข็งเป็นอาหารเหลว (progressive)",
+            ],
+          },
+          {
+            key: "symptoms", label: "อาการร่วม (แตะเลือก)", type: "chips", join: "space",
+            options: ["เสียงแหบ (hoarseness)", "น้ำหนักลด", "สำลักบ่อย", "เจ็บเวลากลืน (odynophagia)", "คลำได้ก้อนที่คอ", "ไอเรื้อรัง", "รู้สึกมีอะไรติดคอ"],
+            def: [],
+          },
+          { key: "duration", label: "ระยะเวลา", type: "select", options: DURATIONS_MID, def: "1 เดือน", half: true },
+          { key: "wtloss", label: "น้ำหนักลด (กก. — เว้นว่างได้)", type: "text", ph: "เช่น 5", half: true, inputMode: "numeric" },
+          {
+            key: "risk", label: "ปัจจัยเสี่ยง (แตะเลือก)", type: "chips", join: "comma",
+            options: ["สูบบุหรี่", "ดื่มสุราเป็นประจำ", "เคยฉายแสงบริเวณศีรษะและลำคอ"],
+            def: [],
+          },
+        ],
+      },
+      {
+        title: "สัญญาณชีพ (Vital Signs)",
+        fields: [
+          { key: "bp", label: "BP", type: "text", ph: "เช่น 120/80", half: true },
+          { key: "hr", label: "HR", type: "text", ph: "เช่น 80", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "ตรวจร่างกาย (แตะเลือก)",
+        fields: [
+          {
+            key: "pe", label: "สิ่งที่ตรวจพบ", type: "chips", join: "comma",
+            options: ["no palpable neck mass", "palpable neck mass", "no cervical lymphadenopathy", "cervical lymphadenopathy", "oral cavity and oropharynx grossly normal", "no stridor"],
+            def: ["no palpable neck mass", "no cervical lymphadenopathy", "oral cavity and oropharynx grossly normal", "no stridor"],
+          },
+          { key: "mass_detail", label: "รายละเอียดก้อน/ต่อมน้ำเหลือง ถ้าคลำได้ (ตำแหน่ง ขนาด)", type: "text", ph: "เช่น ก้อนบริเวณ Lt level II ขนาด 2 cm แข็ง ไม่เจ็บ" },
+        ],
+      },
+      {
+        title: "การรักษา (แตะเลือก)",
+        fields: [
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "refer ENT for laryngoscopy เพื่อ r/o vocal cord pathology และ malignancy",
+              "film lateral neck / CXR",
+              "แนะนำงดบุหรี่และสุรา",
+              "แนะนำทานอาหารอ่อน ระวังการสำลัก",
+            ],
+            def: ["refer ENT for laryngoscopy เพื่อ r/o vocal cord pathology และ malignancy", "แนะนำงดบุหรี่และสุรา"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => ({
+      weight_line: v.wtloss && String(v.wtloss).trim() ? ` น้ำหนักลด ${String(v.wtloss).trim()} กก.` : "",
+      risk_txt: (v.risk || []).length ? (v.risk || []).join(", ") : "ปฏิเสธ",
+      mass_line: v.mass_detail && String(v.mass_detail).trim() ? `\nก้อนที่คลำได้ : ${String(v.mass_detail).trim()}` : "",
+    }),
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{character} ร่วมกับ{symptoms} มา {duration}{weight_line}
+ปัจจัยเสี่ยง : {risk_txt}
+
+physical examination
+Vital sign BP {bp} mmHg, HR {hr}
+{pe}{mass_line}
+
+diagnosis : dysphagia, r/o vocal cord pathology / laryngopharyngeal malignancy
+
+management :
+{management}{note_line}`,
+  },
+
+  {
+    id: "angina",
+    name: "โรคหัวใจขาดเลือดชนิดคงที่",
+    en: "Stable Angina",
+    color: "#C2410C",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไปและลักษณะอาการ",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 58", half: true, inputMode: "numeric" },
+          {
+            key: "criteria", label: "ลักษณะอาการเจ็บหน้าอก (แตะเลือก — ใช้ประเมิน typical angina)", type: "chips", join: "space",
+            options: [
+              "เจ็บแน่นกลางหน้าอกลักษณะบีบรัด",
+              "สัมพันธ์กับการออกแรงหรือเครียด",
+              "ดีขึ้นเมื่อพักหรืออมยาใต้ลิ้นภายใน 5 นาที",
+            ],
+            def: ["เจ็บแน่นกลางหน้าอกลักษณะบีบรัด", "สัมพันธ์กับการออกแรงหรือเครียด", "ดีขึ้นเมื่อพักหรืออมยาใต้ลิ้นภายใน 5 นาที"],
+          },
+          {
+            key: "assoc", label: "อาการร่วม (แตะเลือก)", type: "chips", join: "space",
+            options: ["ร้าวไปกรามหรือแขนซ้าย", "เหนื่อยง่ายเวลาออกแรง", "ใจสั่น", "เหงื่อแตกขณะมีอาการ"],
+            def: [],
+          },
+          { key: "duration", label: "เป็นมาประมาณ", type: "select", options: DURATIONS_MID, def: "2 เดือน", half: true },
+          { key: "ccs", label: "CCS class", type: "select", options: ["I", "II", "III", "IV"], def: "II", half: true },
+        ],
+      },
+      {
+        title: "ยืนยันว่าเป็น stable (แตะเลือก)",
+        fields: [
+          {
+            key: "stable", label: "ไม่มีลักษณะของ unstable angina", type: "chips", join: "comma",
+            options: [
+              "ไม่มีเจ็บหน้าอกขณะพัก",
+              "อาการไม่ถี่ขึ้นหรือรุนแรงขึ้นในช่วง 2 เดือน",
+              "ไม่มีเจ็บนานเกิน 20 นาที",
+              "ไม่เคยหน้ามืดหมดสติ",
+            ],
+            def: ["ไม่มีเจ็บหน้าอกขณะพัก", "อาการไม่ถี่ขึ้นหรือรุนแรงขึ้นในช่วง 2 เดือน", "ไม่มีเจ็บนานเกิน 20 นาที"],
+          },
+          {
+            key: "risk", label: "ปัจจัยเสี่ยง (แตะเลือก)", type: "chips", join: "comma",
+            options: ["ความดันโลหิตสูง (HTN)", "เบาหวาน (DM)", "ไขมันในเลือดสูง (DLP)", "สูบบุหรี่", "ประวัติครอบครัวเป็นโรคหัวใจก่อนวัย", "โรคไตเรื้อรัง (CKD)"],
+            def: [],
+          },
+        ],
+      },
+      {
+        title: "สัญญาณชีพ (Vital Signs)",
+        fields: [
+          { key: "bp", label: "BP", type: "text", ph: "เช่น 140/85", half: true },
+          { key: "hr", label: "HR", type: "text", ph: "เช่น 76", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "ตรวจร่างกายและ EKG (แตะเลือก)",
+        fields: [
+          {
+            key: "pe", label: "สิ่งที่ตรวจพบ", type: "chips", join: "comma",
+            options: ["heart : normal S1S2, no murmur", "lungs : clear both lungs", "no edema", "equal peripheral pulses"],
+            def: ["heart : normal S1S2, no murmur", "lungs : clear both lungs", "no edema"],
+          },
+          {
+            key: "ekg", label: "EKG ขณะไม่มีอาการ", type: "select",
+            options: ["normal sinus rhythm", "nonspecific ST-T change", "old Q wave", "LVH by voltage criteria", "ยังไม่ได้ตรวจ"],
+            def: "normal sinus rhythm",
+          },
+        ],
+      },
+      {
+        title: "การรักษาและส่งต่อ (แตะเลือก)",
+        fields: [
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "refer OPD อายุรกรรมโรคหัวใจ เพื่อพิจารณาทำ exercise stress test (EST)",
+              "aspirin (81) 1x1 pc",
+              "atorvastatin (40) 1x1 hs",
+              "isosorbide dinitrate (5) อมใต้ลิ้นเมื่อเจ็บหน้าอก",
+              "atenolol (50) 1/2x1 pc",
+              "แนะนำงดบุหรี่ ควบคุมอาหาร ออกกำลังกายตามความเหมาะสม",
+              "แนะนำมาโรงพยาบาลทันทีหากเจ็บขณะพัก เจ็บนานเกิน 20 นาที หรืออมยาแล้วไม่ดีขึ้น",
+            ],
+            def: [
+              "refer OPD อายุรกรรมโรคหัวใจ เพื่อพิจารณาทำ exercise stress test (EST)",
+              "aspirin (81) 1x1 pc",
+              "atorvastatin (40) 1x1 hs",
+              "isosorbide dinitrate (5) อมใต้ลิ้นเมื่อเจ็บหน้าอก",
+              "แนะนำมาโรงพยาบาลทันทีหากเจ็บขณะพัก เจ็บนานเกิน 20 นาที หรืออมยาแล้วไม่ดีขึ้น",
+            ],
+          },
+        ],
+      },
+    ],
+    derive: (v) => {
+      const n = (v.criteria || []).length;
+      const type = n >= 3 ? "typical angina" : n === 2 ? "atypical angina" : "non-anginal chest pain";
+      return {
+        angina_type: `${type} (${n}/3 ข้อ)`,
+        assoc_line: (v.assoc || []).length ? ` ร่วมกับ${v.assoc.join(" ")}` : "",
+        stable_line: (v.stable || []).length ? `no unstable features : ${v.stable.join(", ")}` : "",
+        risk_txt: (v.risk || []).length ? (v.risk || []).join(", ") : "ปฏิเสธ",
+      };
+    },
+    liveScore: {
+      afterTitle: "ข้อมูลทั่วไป",
+      text: (v, d) => `ประเมินอัตโนมัติ : ${d.derive(v).angina_type}`,
+    },
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{criteria}{assoc_line} มาประมาณ {duration}
+ลักษณะอาการเข้าได้กับ {angina_type}, CCS class {ccs}
+{stable_line}
+ปัจจัยเสี่ยง : {risk_txt}
+
+physical examination
+Vital sign BP {bp} mmHg, HR {hr}
+{pe}
+
+EKG : {ekg}
+
+diagnosis : stable angina
+
+management :
+{management}{note_line}`,
+  },
+
+  {
+    id: "nephro",
+    name: "กลุ่มโรคไตอักเสบ/เนโฟรติก",
+    en: "Nephrotic / Nephritis",
+    color: "#0D9488",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 30", half: true, inputMode: "numeric" },
+          {
+            key: "symptoms", label: "อาการ (แตะเลือก)", type: "chips", join: "space",
+            options: ["บวมหน้าและหนังตาตอนเช้า", "บวมขาทั้ง 2 ข้างกดบุ๋ม", "บวมทั้งตัว", "ปัสสาวะเป็นฟองมาก", "ปัสสาวะสีเข้มคล้ายน้ำล้างเนื้อ", "ปัสสาวะออกน้อยลง", "น้ำหนักขึ้นเร็ว"],
+            def: ["บวมขาทั้ง 2 ข้างกดบุ๋ม", "ปัสสาวะเป็นฟองมาก"],
+          },
+          { key: "duration", label: "ระยะเวลา", type: "select", options: DURATIONS_SHORT.concat(DURATIONS_MID), def: "2 สัปดาห์", half: true },
+        ],
+      },
+      {
+        title: "สัญญาณชีพ (Vital Signs)",
+        fields: [
+          { key: "bp", label: "BP", type: "text", ph: "เช่น 150/95", half: true },
+          { key: "hr", label: "HR", type: "text", ph: "เช่น 80", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "ตรวจร่างกาย (แตะเลือก)",
+        fields: [
+          {
+            key: "pe", label: "สิ่งที่ตรวจพบ", type: "chips", join: "comma",
+            options: ["periorbital edema", "pitting edema both legs", "generalized edema (anasarca)", "ascites", "no skin rash", "no arthritis", "no oral ulcer"],
+            def: ["pitting edema both legs", "no skin rash", "no arthritis"],
+          },
+        ],
+      },
+      {
+        title: "ผลตรวจทางห้องปฏิบัติการ",
+        fields: [
+          { key: "uprot", label: "urine protein", type: "select", options: ["trace", "1+", "2+", "3+", "4+"], half: true },
+          { key: "urbc", label: "urine RBC (/HPF)", type: "text", ph: "เช่น 10-20", half: true },
+          { key: "ucast", label: "urine cast (ถ้ามี)", type: "select", options: ["ไม่พบ", "RBC cast", "granular cast", "fatty cast / oval fat body"], half: true },
+          { key: "cr", label: "serum creatinine (mg/dL)", type: "text", ph: "เช่น 1.2", half: true, inputMode: "decimal" },
+          { key: "alb", label: "serum albumin (g/dL — เว้นว่างได้)", type: "text", ph: "เช่น 2.0", half: true, inputMode: "decimal" },
+          { key: "chol", label: "cholesterol (mg/dL — เว้นว่างได้)", type: "text", ph: "เช่น 350", half: true, inputMode: "numeric" },
+          { key: "upcr", label: "UPCR หรือ urine protein 24 hr (เว้นว่างได้)", type: "text", ph: "เช่น UPCR 5.2 g/g" },
+        ],
+      },
+      {
+        title: "การวินิจฉัยและส่งต่อ (แตะเลือก)",
+        fields: [
+          {
+            key: "dx", label: "การวินิจฉัย", type: "select",
+            options: [
+              "nephrotic syndrome",
+              "acute nephritic syndrome",
+              "nephrotic-nephritic syndrome",
+              "rapidly progressive glomerulonephritis (RPGN)",
+            ],
+            def: "nephrotic syndrome",
+          },
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "refer อายุรกรรมโรคไต เพื่อพิจารณาทำ renal biopsy",
+              "จำกัดเกลือ < 2 g/day",
+              "furosemide (40) 1x1 pc เช้า",
+              "enalapril (5) 1x1 pc",
+              "งด NSAIDs และยาสมุนไพร",
+              "record I/O ชั่งน้ำหนักทุกวัน",
+              "ส่งตรวจเพิ่มเติม : ANA, anti-dsDNA, C3/C4, HBsAg, anti-HCV",
+            ],
+            def: ["refer อายุรกรรมโรคไต เพื่อพิจารณาทำ renal biopsy", "จำกัดเกลือ < 2 g/day", "งด NSAIDs และยาสมุนไพร"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => {
+      const lines = [];
+      if (v.ucast && v.ucast !== "ไม่พบ") lines.push(`urine cast : ${v.ucast}`);
+      if (v.cr && String(v.cr).trim()) lines.push(`serum creatinine ${String(v.cr).trim()} mg/dL`);
+      if (v.alb && String(v.alb).trim()) lines.push(`serum albumin ${String(v.alb).trim()} g/dL`);
+      if (v.chol && String(v.chol).trim()) lines.push(`cholesterol ${String(v.chol).trim()} mg/dL`);
+      if (v.upcr && String(v.upcr).trim()) lines.push(String(v.upcr).trim());
+      return { lab_block: lines.length ? `\n${lines.join("\n")}` : "" };
+    },
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{symptoms} มาประมาณ {duration}
+
+physical examination
+Vital sign BP {bp} mmHg, HR {hr}
+{pe}
+
+investigation :
+UA : protein {uprot}, RBC {urbc} /HPF{lab_block}
+
+diagnosis : {dx}
+
+management :
+{management}{note_line}`,
+  },
+
+  {
+    id: "hbv",
+    name: "ไวรัสตับอักเสบบีเรื้อรัง",
+    en: "Chronic HBV",
+    color: "#CA8A04",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 45", half: true, inputMode: "numeric" },
+          {
+            key: "status", label: "สถานะการรักษา", type: "select",
+            options: [
+              { label: "รายใหม่ ยังไม่เริ่มยา", value: "รายใหม่ที่เพิ่งวินิจฉัย" },
+              { label: "กำลังรักษาด้วย TAF อยู่", value: "อยู่ระหว่างการรักษาด้วย TAF" },
+            ],
+            def: "รายใหม่ที่เพิ่งวินิจฉัย",
+          },
+          {
+            key: "symptoms", label: "อาการ (แตะเลือก — ส่วนใหญ่ไม่มีอาการ)", type: "chips", join: "space",
+            options: ["ไม่มีอาการ ตรวจพบจากการคัดกรอง", "อ่อนเพลีย", "ตัวเหลืองตาเหลือง", "ปวดชายโครงขวา", "เบื่ออาหาร คลื่นไส้"],
+            def: ["ไม่มีอาการ ตรวจพบจากการคัดกรอง"],
+          },
+        ],
+      },
+      {
+        title: "ผลตรวจทางห้องปฏิบัติการ (สำหรับคำนวณ APRI / FIB-4)",
+        fields: [
+          { key: "ast", label: "AST (U/L)", type: "text", ph: "เช่น 65", half: true, inputMode: "numeric" },
+          { key: "alt", label: "ALT (U/L)", type: "text", ph: "เช่น 80", half: true, inputMode: "numeric" },
+          { key: "ast_uln", label: "ULN ของ AST (ค่าปกติสูงสุด)", type: "select", options: ["35", "40"], def: "40", half: true },
+          { key: "plt", label: "Platelet (×10⁹/L)", type: "text", ph: "เช่น 150", half: true, inputMode: "numeric" },
+          { key: "vl", label: "HBV viral load (IU/mL)", type: "text", ph: "เช่น 25000", half: true, inputMode: "numeric" },
+          { key: "hbeag", label: "HBeAg", type: "select", options: ["positive", "negative", "ยังไม่ได้ตรวจ"], half: true },
+          { key: "cr", label: "Cr (mg/dL)", type: "text", ph: "เช่น 0.9", half: true, inputMode: "decimal" },
+          { key: "afp", label: "AFP (ng/mL — ถ้าตรวจ)", type: "text", ph: "เช่น 8", half: true, inputMode: "decimal" },
+        ],
+      },
+      {
+        title: "อัลตราซาวด์ตับและปัจจัยเสี่ยง (แตะเลือก)",
+        fields: [
+          {
+            key: "us", label: "ผล ultrasound liver", type: "select",
+            options: ["normal liver", "coarse parenchyma / fatty liver", "cirrhosis", "พบก้อนที่ตับ (liver mass)", "ยังไม่ได้ทำ"],
+            def: "normal liver",
+          },
+          {
+            key: "referflags", label: "ปัจจัยที่เข้าเกณฑ์ส่งต่อ GI (แตะเลือก)", type: "chips", join: "comma",
+            options: [
+              "มีภาวะตับแข็ง (cirrhosis / stigmata / APRI > 2)",
+              "U/S พบก้อนที่ตับ",
+              "ติดเชื้อไวรัสตับอักเสบ ซี ร่วมด้วย",
+              "เป็นมะเร็งตับ",
+              "กำลังจะได้ chemotherapy หรือ immunosuppressant",
+              "หญิงตั้งครรภ์ที่ต้องรักษายาว",
+              "อายุ ≤ 18 ปี ที่มีข้อบ่งชี้รักษา",
+              "ประวัติปลูกถ่ายตับ/อวัยวะ",
+              "CrCl < 15 ml/min",
+            ],
+            def: [],
+          },
+          {
+            key: "onttx_flags", label: "สำหรับผู้ที่กำลังรักษา TAF — เหตุผลส่งต่อ (แตะเลือก)", type: "chips", join: "comma",
+            options: ["มีอาการตับอักเสบ ตัว/ตาเหลือง", "ALT สูงขึ้น ≥ 2 เท่าของค่าเดิม", "CrCl ลดลง ≥ 30%"],
+            def: [],
+          },
+        ],
+      },
+      {
+        title: "การวินิจฉัยและส่งต่อ (แตะเลือก)",
+        fields: [
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "เริ่มยา Tenofovir alafenamide (TAF) 25 mg 1 เม็ด วันละครั้ง พร้อมอาหาร",
+              "รักษาด้วย TAF 25 mg วันละครั้งต่อเนื่อง",
+              "ตรวจติดตาม ALT, Cr ทุก 3-6 เดือน",
+              "ตรวจติดตาม AST, ALT, Platelet ทุก 6-12 เดือน (ยังไม่มีข้อบ่งชี้รักษา)",
+              "HCC surveillance : U/S liver +/- AFP ทุก 6-12 เดือน",
+              "refer อายุรกรรมทางเดินอาหาร (GI) เพื่อประเมิน/รักษาต่อ",
+              "แนะนำงดสุรา ตรวจคัดกรอง HCV และ HIV",
+            ],
+            def: [],
+          },
+        ],
+      },
+    ],
+    derive: (v) => {
+      const ast = parseFloat(v.ast), alt = parseFloat(v.alt), plt = parseFloat(v.plt);
+      const uln = parseFloat(v.ast_uln) || 40, age = parseFloat(v.age);
+      let apri = NaN, fib4 = NaN;
+      if (ast > 0 && plt > 0) apri = (ast / uln / plt) * 100;
+      if (age > 0 && ast > 0 && plt > 0 && alt > 0) fib4 = (age * ast) / (plt * Math.sqrt(alt));
+      const interpApri = isNaN(apri) ? "" : apri > 2 ? "cirrhosis (F4)" : apri >= 0.5 ? "significant fibrosis (≥F2)" : "non/mild fibrosis (<F2)";
+      const interpFib4 = isNaN(fib4) ? "" : fib4 > 2.67 ? "advanced fibrosis (F3)" : fib4 >= 1.3 ? "significant fibrosis (≥F2)" : "non/mild fibrosis (<F2)";
+      const fibLine = (!isNaN(apri) || !isNaN(fib4))
+        ? `\nAPRI ${isNaN(apri) ? "-" : apri.toFixed(2)}${interpApri ? ` (${interpApri})` : ""}, FIB-4 ${isNaN(fib4) ? "-" : fib4.toFixed(2)}${interpFib4 ? ` (${interpFib4})` : ""}`
+        : "";
+      const labLine = [
+        (v.ast || v.alt) ? `AST ${orDots(v.ast)}, ALT ${orDots(v.alt)} U/L` : "",
+        v.plt ? `Platelet ${v.plt} ×10⁹/L` : "",
+        v.vl ? `HBV viral load ${v.vl} IU/mL` : "",
+        v.hbeag && v.hbeag !== "ยังไม่ได้ตรวจ" ? `HBeAg ${v.hbeag}` : "",
+        v.cr ? `Cr ${v.cr} mg/dL` : "",
+        v.afp ? `AFP ${v.afp} ng/mL` : "",
+      ].filter(Boolean).join(", ");
+      const flags = [...(v.referflags || []), ...(v.onttx_flags || [])];
+      const referBlock = flags.length
+        ? `\n\nเข้าเกณฑ์ส่งต่อ/ปรึกษาแพทย์เฉพาะทาง GI :\n${bullets(flags)}`
+        : "";
+      return {
+        us_line: v.us && v.us !== "ยังไม่ได้ทำ" ? `\nUltrasound liver : ${v.us}` : "",
+        lab_line: labLine ? `\n${labLine}` : "",
+        fib_line: fibLine,
+        refer_block: referBlock,
+      };
+    },
+    liveScore: {
+      afterTitle: "ผลตรวจทางห้องปฏิบัติการ",
+      text: (v, d) => {
+        const x = d.derive(v);
+        return x.fib_line ? "คำนวณอัตโนมัติ :" + x.fib_line.replace("\n", " ") : "กรอก AST, Platelet, ALT เพื่อคำนวณ APRI/FIB-4";
+      },
+    },
+    template: `ผู้ป่วย{sex} อายุ {age} ปี ({status}) {symptoms}
+
+diagnosis : chronic hepatitis B viral infection
+
+investigation :{lab_line}{fib_line}{us_line}{refer_block}
+
+management :
+{management}{note_line}`,
+  },
+
+  {
+    id: "hcc",
+    name: "มะเร็งตับ",
+    en: "HCC",
+    color: "#B45309",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 60", half: true, inputMode: "numeric" },
+          {
+            key: "background", label: "โรคตับพื้นฐาน (แตะเลือก)", type: "chips", join: "comma",
+            options: ["chronic HBV", "chronic HCV", "alcoholic cirrhosis", "NASH cirrhosis", "ไม่ทราบสาเหตุ"],
+            def: [],
+          },
+          {
+            key: "symptoms", label: "อาการ (แตะเลือก)", type: "chips", join: "space",
+            options: ["ตรวจพบจากการคัดกรอง ไม่มีอาการ", "ปวดแน่นชายโครงขวา", "คลำได้ก้อนที่ท้อง", "น้ำหนักลด เบื่ออาหาร", "ตัวเหลืองตาเหลือง", "ท้องโตขึ้น (ascites)"],
+            def: ["ตรวจพบจากการคัดกรอง ไม่มีอาการ"],
+          },
+          { key: "duration", label: "ระยะเวลา", type: "select", options: DURATIONS_SHORT.concat(DURATIONS_MID), def: "1 เดือน", half: true },
+        ],
+      },
+      {
+        title: "ผลตรวจและภาพ",
+        fields: [
+          { key: "afp", label: "AFP (ng/mL)", type: "text", ph: "เช่น 450", half: true, inputMode: "decimal" },
+          { key: "childpugh", label: "Child-Pugh class", type: "select", options: ["A", "B", "C", "ยังประเมินไม่ได้"], half: true },
+          {
+            key: "imaging", label: "ผลภาพ (U/S / CT / MRI)", type: "text",
+            ph: "เช่น CT พบ arterial enhancing mass 5 cm ที่ right lobe with washout",
+          },
+          { key: "img_files", label: "แนบภาพ U/S / CT / MRI", type: "image" },
+        ],
+      },
+      {
+        title: "การวินิจฉัยและส่งต่อ (แตะเลือก)",
+        fields: [
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "refer อายุรกรรมทางเดินอาหาร / ศัลยกรรม เพื่อประเมินและวางแผนการรักษา",
+              "refer เพื่อทำ CT / MRI liver (triphasic) ยืนยันการวินิจฉัย",
+              "ปรึกษา multidisciplinary team (MDT) มะเร็งตับ",
+              "ประเมิน Child-Pugh และ performance status",
+              "แนะนำงดสุรา",
+            ],
+            def: ["refer อายุรกรรมทางเดินอาหาร / ศัลยกรรม เพื่อประเมินและวางแผนการรักษา", "refer เพื่อทำ CT / MRI liver (triphasic) ยืนยันการวินิจฉัย"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => ({
+      background_txt: (v.background || []).length ? (v.background || []).join(", ") : "ไม่ทราบ",
+      afp_line: v.afp && String(v.afp).trim() ? `\nAFP ${String(v.afp).trim()} ng/mL` : "",
+      cp_line: v.childpugh && v.childpugh !== "ยังประเมินไม่ได้" ? `\nChild-Pugh class ${v.childpugh}` : "",
+      imaging_line: v.imaging && String(v.imaging).trim() ? `\nimaging : ${String(v.imaging).trim()}` : "",
+    }),
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{symptoms} มา {duration}
+underlying liver disease : {background_txt}
+
+investigation :{imaging_line}{afp_line}{cp_line}
+
+diagnosis : hepatocellular carcinoma (HCC)
+
+management :
+{management}{note_line}`,
+  },
+
+  {
+    id: "lungmass",
+    name: "ก้อนในปอด",
+    en: "Lung mass r/o CA",
+    color: "#0EA5E9",
+    sections: [
+      {
+        title: "ข้อมูลทั่วไป",
+        fields: [
+          { key: "sex", label: "เพศ", type: "select", options: ["ชาย", "หญิง"], half: true },
+          { key: "age", label: "อายุ (ปี)", type: "text", ph: "เช่น 65", half: true, inputMode: "numeric" },
+          {
+            key: "symptoms", label: "อาการ (แตะเลือก)", type: "chips", join: "space",
+            options: ["ไอเรื้อรัง", "ไอเป็นเลือด (hemoptysis)", "น้ำหนักลด", "เหนื่อยหอบ", "เจ็บหน้าอก", "เสียงแหบ", "ตรวจพบจากภาพถ่ายปอด ไม่มีอาการ"],
+            def: ["ไอเรื้อรัง", "น้ำหนักลด"],
+          },
+          { key: "duration", label: "ระยะเวลา", type: "select", options: DURATIONS_MID, def: "2 เดือน", half: true },
+          {
+            key: "smoking", label: "ประวัติสูบบุหรี่", type: "select",
+            options: ["ไม่สูบ", "เคยสูบ (ex-smoker)", "สูบปัจจุบัน"], def: "สูบปัจจุบัน", half: true,
+          },
+          { key: "packyear", label: "pack-year (ถ้าสูบ)", type: "text", ph: "เช่น 30", half: true, inputMode: "numeric" },
+        ],
+      },
+      {
+        title: "สัญญาณชีพและตรวจร่างกาย (แตะเลือก)",
+        fields: [
+          { key: "bp", label: "BP", type: "text", ph: "เช่น 130/80", half: true },
+          { key: "hr", label: "HR", type: "text", ph: "เช่น 84", half: true, inputMode: "numeric" },
+          { key: "o2sat", label: "O₂ sat (%)", type: "text", ph: "เช่น 96", half: true, inputMode: "numeric" },
+          {
+            key: "pe", label: "สิ่งที่ตรวจพบ", type: "chips", join: "comma",
+            options: ["decreased breath sound", "no palpable cervical/supraclavicular node", "palpable supraclavicular node", "no clubbing of fingers", "clubbing of fingers", "no superior vena cava syndrome"],
+            def: ["no palpable cervical/supraclavicular node", "no clubbing of fingers"],
+          },
+        ],
+      },
+      {
+        title: "ลักษณะก้อนและภาพถ่าย",
+        fields: [
+          {
+            key: "location", label: "ตำแหน่งก้อน", type: "select",
+            options: ["RUL", "RML", "RLL", "LUL", "lingula", "LLL", "central / hilar"],
+            half: true,
+          },
+          { key: "size", label: "ขนาดก้อน (cm)", type: "text", ph: "เช่น 4.5", half: true, inputMode: "decimal" },
+          {
+            key: "imaging_type", label: "ตรวจด้วย", type: "select",
+            options: ["CXR", "CT chest", "CXR + CT chest"], def: "CT chest", half: true,
+          },
+          { key: "img_files", label: "แนบภาพ CXR / CT chest", type: "image" },
+        ],
+      },
+      {
+        title: "ตัวช่วยประเมิน TNM staging (ถ้ามีข้อมูลภาพ)",
+        fields: [
+          {
+            key: "t", label: "T (ขนาด/การลุกลามของก้อน)", type: "select",
+            options: [
+              { label: "T1 : ≤ 3 cm ล้อมรอบด้วยปอด", value: "T1" },
+              { label: "T2 : > 3–5 cm หรือชิด visceral pleura/main bronchus", value: "T2" },
+              { label: "T3 : > 5–7 cm หรือก้อนแยกใน lobe เดียวกัน/ลุกลาม chest wall", value: "T3" },
+              { label: "T4 : > 7 cm หรือลุกลาม mediastinum/หัวใจ/หลอดเลือดใหญ่", value: "T4" },
+              { label: "ยังประเมินไม่ได้", value: "Tx" },
+            ],
+          },
+          {
+            key: "n", label: "N (ต่อมน้ำเหลือง)", type: "select",
+            options: [
+              { label: "N0 : ไม่พบต่อมน้ำเหลืองลุกลาม", value: "N0" },
+              { label: "N1 : ต่อม ipsilateral hilar/peribronchial", value: "N1" },
+              { label: "N2 : ต่อม ipsilateral mediastinal/subcarinal", value: "N2" },
+              { label: "N3 : ต่อม contralateral/supraclavicular", value: "N3" },
+              { label: "ยังประเมินไม่ได้", value: "Nx" },
+            ],
+          },
+          {
+            key: "m", label: "M (การแพร่กระจาย)", type: "select",
+            options: [
+              { label: "M0 : ไม่พบการแพร่กระจาย", value: "M0" },
+              { label: "M1a : ก้อนอีกข้าง/pleural หรือ pericardial effusion", value: "M1a" },
+              { label: "M1b : แพร่กระจายนอกทรวงอก 1 ตำแหน่ง", value: "M1b" },
+              { label: "M1c : แพร่กระจายนอกทรวงอกหลายตำแหน่ง", value: "M1c" },
+              { label: "ยังประเมินไม่ได้", value: "Mx" },
+            ],
+          },
+        ],
+      },
+      {
+        title: "การวินิจฉัยและส่งต่อ (แตะเลือก)",
+        fields: [
+          {
+            key: "management", label: "management", type: "chips", join: "bullet",
+            options: [
+              "refer อายุรกรรมโรคปอด / ศัลยกรรมทรวงอก เพื่อประเมินและทำ tissue diagnosis",
+              "refer เพื่อทำ CT chest with contrast (ถ้ายังไม่ได้ทำ)",
+              "ปรึกษาเพื่อพิจารณา bronchoscopy / biopsy",
+              "ปรึกษา multidisciplinary team (MDT) มะเร็งปอด",
+              "แนะนำงดบุหรี่",
+            ],
+            def: ["refer อายุรกรรมโรคปอด / ศัลยกรรมทรวงอก เพื่อประเมินและทำ tissue diagnosis"],
+          },
+        ],
+      },
+    ],
+    derive: (v) => {
+      const smoke = v.smoking === "ไม่สูบ"
+        ? "ปฏิเสธการสูบบุหรี่"
+        : `${v.smoking}${v.packyear && String(v.packyear).trim() ? ` ${String(v.packyear).trim()} pack-year` : ""}`;
+      const hasStage = v.t && v.n && v.m && ![v.t, v.n, v.m].some((x) => x.endsWith("x"));
+      const stageLine = hasStage ? `\nclinical staging : c${v.t} ${v.n} ${v.m}` : "";
+      const massDesc = [
+        v.size && String(v.size).trim() ? `${String(v.size).trim()} cm` : "",
+        v.location ? `at ${v.location}` : "",
+      ].filter(Boolean).join(" ");
+      return {
+        smoking_txt: smoke,
+        mass_line: `${v.imaging_type || "imaging"} : lung mass ${massDesc || "(ระบุขนาด/ตำแหน่ง)"}`,
+        stage_line: stageLine,
+      };
+    },
+    template: `ผู้ป่วย{sex} อายุ {age} ปี มีอาการ{symptoms} มา {duration}
+ประวัติสูบบุหรี่ : {smoking_txt}
+
+physical examination
+Vital sign BP {bp} mmHg, HR {hr}, O2 sat {o2sat}%
+{pe}
+
+investigation :
+{mass_line}{stage_line}
+
+diagnosis : lung mass, r/o carcinoma of lung
+
+management :
+{management}{note_line}`,
+  },
+];
+
+// ---------- generic derive: chips → ข้อความตามรูปแบบ join ----------
+function genericChipDerive(disease, v) {
+  const out = {};
+  disease.sections.forEach((s) =>
+    s.fields.forEach((f) => {
+      if (f.type === "chips") {
+        const arr = v[f.key] || [];
+        out[f.key] =
+          f.join === "bullet" ? bullets(arr) : arr.join(f.join === "comma" ? ", " : " ");
+      } else if (f.type === "image") {
+        const n = (v[f.key] || []).length;
+        out[f.key] = n ? `แนบภาพ${f.label || ""} ${n} ภาพ` : "";
+      }
+    })
+  );
+  out.note_line = v.note && String(v.note).trim() ? `\n\nnote : ${String(v.note).trim()}` : "";
+  return out;
+}
+
+// ---------- template fill (deterministic) ----------
+function fillTemplate(disease, template, values) {
+  const map = {
+    ...values,
+    ...genericChipDerive(disease, values),
+    ...(disease.derive ? disease.derive(values) : {}),
+  };
+  const text = template.replace(/\{(\w+)\}/g, (_, key) => {
+    const val = map[key];
+    if (val === undefined || val === null) return ".......";
+    const str = Array.isArray(val) ? val.join(" ") : String(val);
+    if (key.endsWith("_line") || key.endsWith("_block")) return str;
+    return orDots(str);
+  });
+  return text.replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function collectPlaceholders(disease) {
+  const keys = [];
+  disease.sections.forEach((s) => s.fields.forEach((f) => keys.push(f.key)));
+  if (disease.derive) {
+    try {
+      Object.keys(disease.derive({})).forEach((k) => !keys.includes(k) && keys.push(k));
+    } catch (e) { /* derive อาจต้องการค่า — ข้ามได้ */ }
+  }
+  if (!keys.includes("note_line")) keys.push("note_line");
+  return keys;
+}
+
+function defaultValues(disease) {
+  const v = {};
+  disease.sections.forEach((s) =>
+    s.fields.forEach((f) => {
+      if (f.type === "chips") v[f.key] = f.def ? [...f.def] : [];
+      else if (f.type === "image") v[f.key] = [];
+      else v[f.key] = f.def !== undefined ? f.def : "";
+    })
+  );
+  v.note = "";
+  return v;
+}
+
+// ---------- clipboard ----------
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (e) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      return true;
+    } catch (e2) {
+      return false;
+    }
+  }
+}
+
+// ---------- field renderer ----------
+function Field({ field, value, onChange }) {
+  if (field.type === "select") {
+    const opts = field.options.map((o) => (typeof o === "string" ? { label: o, value: o } : o));
+    return (
+      <div className={`field ${field.half ? "" : "full"}`}>
+        <label className="label">{field.label}</label>
+        <select className="select" value={value || ""} onChange={(e) => onChange(e.target.value)}>
+          <option value="">— เลือก —</option>
+          {opts.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+  if (field.type === "chips") {
+    const sel = value || [];
+    const toggle = (opt) => onChange(sel.includes(opt) ? sel.filter((x) => x !== opt) : [...sel, opt]);
+    return (
+      <div className="field full">
+        <label className="label">{field.label}</label>
+        <div className="chips">
+          {field.options.map((opt) => (
+            <button key={opt} type="button" aria-pressed={sel.includes(opt)} className={`chip ${sel.includes(opt) ? "on" : ""}`} onClick={() => toggle(opt)}>
+              {opt}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (field.type === "image") {
+    const imgs = value || [];
+    const onFiles = async (e) => {
+      const files = Array.from(e.target.files || []);
+      const read = (f) =>
+        new Promise((res) => {
+          const r = new FileReader();
+          r.onload = () => res({ name: f.name, data: r.result });
+          r.readAsDataURL(f);
+        });
+      const loaded = await Promise.all(files.map(read));
+      onChange([...imgs, ...loaded]);
+      e.target.value = "";
+    };
+    const removeImg = (i) => onChange(imgs.filter((_, idx) => idx !== i));
+    return (
+      <div className="field full">
+        <label className="label">{field.label}</label>
+        <div className="img-row">
+          {imgs.map((im, i) => (
+            <div className="thumb" key={i}>
+              <img src={im.data} alt={im.name} />
+              <button type="button" className="thumb-x" aria-label="ลบรูป" onClick={() => removeImg(i)}>✕</button>
+            </div>
+          ))}
+          <label className="img-add">
+            + แนบรูป
+            <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={onFiles} />
+          </label>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className={`field ${field.half ? "" : "full"}`}>
+      <label className="label">{field.label}</label>
+      <input className="input" value={value || ""} placeholder={field.ph || ""} inputMode={field.inputMode} onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+function ReferralDocApp() {
+  const [view, setView] = useState("home"); // home | form | output | template
+  const [diseaseId, setDiseaseId] = useState(null);
+  const [allValues, setAllValues] = useState({});
+  const [templates, setTemplates] = useState(() => Object.fromEntries(BUILT_IN.map((d) => [d.id, d.template])));
+  const [output, setOutput] = useState("");
+  const [copied, setCopied] = useState(false);
+  const tplRef = useRef(null);
+
+  const disease = BUILT_IN.find((d) => d.id === diseaseId);
+  const values = (disease && allValues[disease.id]) || {};
+
+  const openForm = (d) => {
+    setDiseaseId(d.id);
+    setAllValues((prev) => ({ ...prev, [d.id]: prev[d.id] || defaultValues(d) }));
+    setView("form");
+  };
+
+  const setValue = (key, val) =>
+    setAllValues((prev) => ({ ...prev, [disease.id]: { ...prev[disease.id], [key]: val } }));
+
+  const generate = () => {
+    setOutput(fillTemplate(disease, templates[disease.id], values));
+    setCopied(false);
+    setView("output");
+  };
+
+  const doCopy = async () => {
+    if (await copyText(output)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    }
+  };
+
+  const insertPlaceholder = (ph) => {
+    const ta = tplRef.current;
+    if (!ta) return;
+    const token = `{${ph}}`;
+    const start = ta.selectionStart ?? ta.value.length;
+    const end = ta.selectionEnd ?? ta.value.length;
+    const next = ta.value.slice(0, start) + token + ta.value.slice(end);
+    setTemplates((prev) => ({ ...prev, [disease.id]: next }));
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = start + token.length;
+    });
+  };
+
+  const accStyle = disease ? { "--acc": disease.color } : {};
+
+  return (
+    <div className="shell" style={accStyle}>
+      {view === "home" && (
+        <div className="card">
+          <div className="title">แบบส่งต่อผู้ป่วย</div>
+          <div className="sub">เลือกโรคที่ต้องการสร้างเอกสาร</div>
+          {GROUPS.map((g) => {
+            const list = BUILT_IN.filter((d) => DISEASE_GROUP[d.id] === g.id);
+            if (!list.length) return null;
+            return (
+              <div className="group" key={g.id}>
+                <div className="group-head">
+                  <span className="group-title">{g.name}</span>
+                  <span className="group-count">{list.length} โรค</span>
+                </div>
+                {list.map((d) => (
+                  <button key={d.id} className="dis-btn" style={{ "--acc": d.color }} onClick={() => openForm(d)}>
+                    <span className="dis-dot" />
+                    <span className="dis-name">{d.name}</span>
+                    <span className="dis-en">{d.en}</span>
+                  </button>
+                ))}
+              </div>
+            );
+          })}
+          <div className="hint center" style={{ marginTop: 18 }}>
+            เอกสารสร้างจากแม่แบบข้อความที่กำหนดไว้ ข้อมูลอยู่ในหน้านี้เท่านั้น ปิดหน้าแล้วจะหายไป
+          </div>
+        </div>
+      )}
+
+      {view === "form" && disease && (
+        <div className="card">
+          <div className="header">
+            <button className="back" aria-label="กลับ" onClick={() => setView("home")}>‹</button>
+            <div className="header-title">ข้อมูลผู้ป่วย: {disease.name}</div>
+            <span className="badge">{disease.en}</span>
+          </div>
+
+          {disease.sections.map((sec, i) => (
+            <div key={i} className="section">
+              <div className="section-title">{sec.title}</div>
+              <div className="grid">
+                {sec.fields.map((f) => (
+                  <Field key={f.key} field={f} value={values[f.key]} onChange={(val) => setValue(f.key, val)} />
+                ))}
+              </div>
+              {disease.liveScore && sec.title.startsWith(disease.liveScore.afterTitle) && (
+                <div className="score">{disease.liveScore.text(values, disease)}</div>
+              )}
+            </div>
+          ))}
+
+          <div className="section">
+            <div className="field full">
+              <label className="label">หมายเหตุเพิ่มเติม (เว้นว่างได้ — ต่อท้ายเอกสาร)</label>
+              <input className="input" value={values.note || ""} onChange={(e) => setValue("note", e.target.value)} />
+            </div>
+          </div>
+
+          <button className="primary" onClick={generate}>สร้างเอกสารอัตโนมัติ</button>
+          <button className="link" onClick={() => setView("template")}>แก้ไขแม่แบบของโรคนี้</button>
+        </div>
+      )}
+
+      {view === "output" && disease && (
+        <div className="card">
+          <div className="header">
+            <button className="back" aria-label="กลับ" onClick={() => setView("form")}>‹</button>
+            <div className="header-title">เอกสารส่งต่อผู้ป่วย</div>
+            <button className="copy" onClick={doCopy}>{copied ? "คัดลอกแล้ว" : "คัดลอก"}</button>
+          </div>
+          <textarea className="mono" value={output} onChange={(e) => setOutput(e.target.value)} spellCheck={false} />
+          <div className="hint">แก้ไขข้อความได้โดยตรงก่อนคัดลอก การแก้ไขมีผลเฉพาะเคสนี้</div>
+          {(() => {
+            const imgFields = [];
+            disease.sections.forEach((s) => s.fields.forEach((f) => {
+              if (f.type === "image" && (values[f.key] || []).length)
+                imgFields.push({ label: f.label, imgs: values[f.key] });
+            }));
+            if (!imgFields.length) return null;
+            return imgFields.map((g, gi) => (
+              <div key={gi}>
+                <div className="out-imglabel">{g.label} (แนบกับเอกสาร — คัดลอกเฉพาะข้อความ)</div>
+                <div className="out-imgs">
+                  {g.imgs.map((im, i) => <img key={i} src={im.data} alt={im.name} />)}
+                </div>
+              </div>
+            ));
+          })()}
+          <button className="secondary" onClick={() => setView("form")}>กลับไปแก้ข้อมูล</button>
+          <button className="secondary" onClick={() => { setAllValues((p) => ({ ...p, [disease.id]: defaultValues(disease) })); setView("form"); }}>
+            สร้างเอกสารใหม่ (ล้างข้อมูล)
+          </button>
+        </div>
+      )}
+
+      {view === "template" && disease && (
+        <div className="card">
+          <div className="header">
+            <button className="back" aria-label="กลับ" onClick={() => setView("form")}>‹</button>
+            <div className="header-title">แม่แบบ: {disease.name}</div>
+          </div>
+          <div className="hint" style={{ marginTop: 0, marginBottom: 10 }}>
+            พิมพ์ข้อความได้อิสระ ระบบจะแทนที่ {"{ชื่อช่อง}"} ด้วยข้อมูลที่กรอก กดชื่อด้านล่างเพื่อแทรกตรงตำแหน่งเคอร์เซอร์
+          </div>
+          <div className="phs">
+            {collectPlaceholders(disease).map((p) => (
+              <button key={p} type="button" className="ph" onClick={() => insertPlaceholder(p)}>
+                {"{" + p + "}"}
+              </button>
+            ))}
+          </div>
+          <textarea ref={tplRef} className="mono" style={{ minHeight: 300 }} value={templates[disease.id]}
+            onChange={(e) => setTemplates((prev) => ({ ...prev, [disease.id]: e.target.value }))} spellCheck={false} />
+          <button className="primary" onClick={() => setView("form")}>บันทึกและไปกรอกข้อมูล</button>
+          <button className="link" onClick={() => setTemplates((prev) => ({ ...prev, [disease.id]: disease.template }))}>
+            คืนค่าแม่แบบเริ่มต้น
+          </button>
+        </div>
+      )}
+
+      <p className="foot">
+        ไม่ต้องใส่ชื่อ-นามสกุลหรือเลข HN ของผู้ป่วยในหน้านี้ เอกสารที่คัดลอกไปใช้ต้องตรวจสอบกับเวชระเบียนและดุลยพินิจของแพทย์ก่อนส่งต่อ
+      </p>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<ReferralDocApp />);
+</script>
+
+</body>
+</html>

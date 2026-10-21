@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แผนยาต้านลิ่มเลือดก่อนหัตถการ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<style>
+:root{
+  --bg:#F2F5F4;--surface:#FFFFFF;--ink:#14303A;--muted:#5A6E74;--line:#D2DCDA;
+  --pri:#0B6B74;--pri-ink:#FFFFFF;--pri-soft:#DFEFEE;
+  --go:#2C7A4C;--go-soft:#E1F1E6;--hold:#B0372A;--hold-soft:#F8E2DE;
+  --part:#9E6410;--part-soft:#FAEDD6;--bridge:#5946A0;--bridge-soft:#EAE6F6;
+  --check:#225E9E;--check-soft:#E0EAF6;--proc:#14303A;--proc-ink:#FFFFFF;
+  --font:"IBM Plex Sans Thai",Tahoma,"Leelawadee UI","Noto Sans Thai",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1A1E;--surface:#15262B;--ink:#E2ECEA;--muted:#97ACB0;--line:#2A3E44;
+  --pri:#4DB2BA;--pri-ink:#062327;--pri-soft:#173A3E;
+  --go:#6CC48F;--go-soft:#173326;--hold:#EE8577;--hold-soft:#3C1E1A;
+  --part:#E2AE5A;--part-soft:#3A2B12;--bridge:#AB9BEB;--bridge-soft:#2A2445;
+  --check:#7DB0EA;--check-soft:#172C44;--proc:#E2ECEA;--proc-ink:#0E1A1E;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1A1E;--surface:#15262B;--ink:#E2ECEA;--muted:#97ACB0;--line:#2A3E44;
+  --pri:#4DB2BA;--pri-ink:#062327;--pri-soft:#173A3E;
+  --go:#6CC48F;--go-soft:#173326;--hold:#EE8577;--hold-soft:#3C1E1A;
+  --part:#E2AE5A;--part-soft:#3A2B12;--bridge:#AB9BEB;--bridge-soft:#2A2445;
+  --check:#7DB0EA;--check-soft:#172C44;--proc:#E2ECEA;--proc-ink:#0E1A1E;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 120px}
+
+header.top{padding:22px 0 14px}
+header.top h1{font-size:1.5rem;line-height:1.25;margin:0;font-weight:700;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+
+.steps{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 0 10px;border-bottom:1px solid var(--line)}
+.steps button{border:0;background:transparent;padding:8px 4px;border-radius:10px;text-align:left;cursor:pointer;color:var(--muted);display:flex;gap:8px;align-items:center;font-size:.88rem;line-height:1.25}
+.steps button .n{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);font-weight:600;font-size:.85rem}
+.steps button[aria-current="step"]{color:var(--ink);font-weight:600}
+.steps button[aria-current="step"] .n{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}
+.steps button.done .n{border-color:var(--pri);color:var(--pri)}
+
+section.blk{margin-top:22px}
+section.blk>h2{font-size:1.08rem;margin:0 0 10px;font-weight:600}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel+.panel{margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.grid .full{grid-column:1/-1}
+@media (max-width:520px){.grid{grid-template-columns:1fr 1fr}.grid .wide{grid-column:1/-1}}
+label.f{display:block;font-size:.85rem;color:var(--muted)}
+label.f input,label.f select{display:block;width:100%;margin-top:4px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:1rem;min-height:44px}
+label.f small{color:var(--muted)}
+.q{font-size:.92rem;font-weight:600;margin:14px 0 8px}
+.q:first-child{margin-top:0}
+.q span{font-weight:400;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;min-height:42px;cursor:pointer;font-size:.93rem;line-height:1.3;text-align:left}
+.chip[aria-pressed="true"]{background:var(--pri);border-color:var(--pri);color:var(--pri-ink);font-weight:500}
+.chip.sq{border-radius:10px}
+.chip small{display:block;font-size:.76rem;opacity:.8;font-weight:400}
+.chip:disabled{opacity:.6;cursor:default}
+.sub{margin-top:12px;padding:12px 14px;border-left:3px solid var(--pri);background:var(--pri-soft);border-radius:0 10px 10px 0}
+.sub h3{margin:0 0 8px;font-size:.95rem}
+.risk{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:6px 12px;border-radius:999px;font-size:.88rem;font-weight:600}
+.risk.low{background:var(--go-soft);color:var(--go)}
+.risk.moderate{background:var(--part-soft);color:var(--part)}
+.risk.high{background:var(--hold-soft);color:var(--hold)}
+.risk.none{background:var(--bg);color:var(--muted);border:1px dashed var(--line)}
+.hint{font-size:.84rem;color:var(--muted);margin:8px 0 0}
+.grouplab{font-size:.82rem;color:var(--muted);margin:12px 0 6px}
+
+/* plan */
+.summary{display:grid;gap:10px}
+.dcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;border-left-width:6px}
+.dcard.go{border-left-color:var(--go)}.dcard.hold{border-left-color:var(--hold)}.dcard.part{border-left-color:var(--part)}
+.dcard.bridge{border-left-color:var(--bridge)}.dcard.check{border-left-color:var(--check)}.dcard.warn{border-left-color:var(--hold);background:var(--hold-soft)}
+.dcard .drug{font-size:.82rem;color:var(--muted)}
+.dcard .dec{font-size:1.08rem;font-weight:700;line-height:1.35;margin:2px 0 6px}
+.dcard ul{margin:0;padding-left:1.15em}
+.dcard li{margin:3px 0;font-size:.93rem}
+.dcard li.w{color:var(--hold);font-weight:500}
+.dcard li.ok{color:var(--go);font-weight:500}
+
+.tl{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface);-webkit-overflow-scrolling:touch}
+.tl table{border-collapse:separate;border-spacing:0;min-width:100%}
+.tl th,.tl td{padding:6px;font-size:.78rem;vertical-align:top;border-bottom:1px solid var(--line)}
+.tl thead th{position:sticky;top:0;background:var(--surface);text-align:center;font-weight:600;white-space:nowrap}
+.tl thead th .d{display:block;font-size:.95rem}
+.tl thead th .dt{display:block;font-weight:400;color:var(--muted);font-size:.72rem}
+.tl thead th.d0{color:var(--pri)}
+.tl tbody th{position:sticky;left:0;background:var(--surface);text-align:left;white-space:nowrap;font-size:.82rem;font-weight:600;z-index:1;border-right:1px solid var(--line)}
+.tl tr:last-child td,.tl tr:last-child th{border-bottom:0}
+.cell{border-radius:8px;padding:5px 6px;min-width:76px;line-height:1.3;text-align:center;font-weight:500}
+.t-go{background:var(--go-soft);color:var(--go)}.t-hold{background:var(--hold-soft);color:var(--hold)}
+.t-part{background:var(--part-soft);color:var(--part)}.t-bridge{background:var(--bridge-soft);color:var(--bridge)}
+.t-check{background:var(--check-soft);color:var(--check)}.t-proc{background:var(--proc);color:var(--proc-ink)}
+.t-opt{background:transparent;color:var(--part);border:1.5px dashed var(--part)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px;font-size:.78rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:4px}
+
+.plist{margin:0;padding-left:1.15em}.plist li{margin:4px 0;font-size:.93rem}
+.refs{font-size:.8rem;color:var(--muted)}
+.refs li{margin:2px 0}
+.empty{padding:22px;text-align:center;color:var(--muted);border:1.5px dashed var(--line);border-radius:14px}
+details.note{margin-top:10px}
+details.note summary{cursor:pointer;font-size:.9rem;color:var(--pri);font-weight:500;padding:6px 0}
+details.note textarea{width:100%;min-height:240px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:.85rem;line-height:1.5}
+
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.bar .in{max-width:760px;margin:0 auto;display:flex;gap:8px}
+.btn{flex:1;min-height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer;padding:0 12px;font-size:.95rem}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}
+.btn:disabled{opacity:.5;cursor:progress}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;opacity:0;transition:.2s;pointer-events:none;z-index:20;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.disc{font-size:.78rem;color:var(--muted);margin-top:18px}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<a href="index.html" style="display:block;max-width:960px;margin:0 auto;padding:10px 16px;font:500 14px 'Sarabun','IBM Plex Sans Thai',sans-serif;color:#2E6B66;text-decoration:none">&larr; เครื่องมือ รพ.ลำดวน</a>
+<div class="wrap">
+  <header class="top">
+    <h1>แผนยาต้านลิ่มเลือดก่อนหัตถการ</h1>
+    <p>Warfarin, DOAC และยาต้านเกล็ดเลือด สำหรับผ่าตัด หัตถการ และทันตกรรม</p>
+  </header>
+  <nav class="steps" id="steps" aria-label="ขั้นตอน"></nav>
+  <main id="app"></main>
+</div>
+<div class="bar"><div class="in" id="bar"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- state ---------- */
+const today = new Date(); today.setHours(0,0,0,0);
+const iso = d => { const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); return z.toISOString().slice(0,10); };
+const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+
+const S = {
+  step:1,
+  hosp:'โรงพยาบาลลำดวน', name:'', hn:'', age:'', weight:'', crcl:'',
+  procName:'', procDate: iso(addDays(today,7)),
+  cat:'dental', dental:[], urgency:'elective', sBleed:'major',
+  warfarin:false, doac:'', asa:false, asaInd:'secondary', p2y12:'', stent:false, mronj:false, ie:false,
+  inr:'', inrDate:'',
+  ind:[], valvePos:'aortic', valveType:'bileaflet', valveMulti:false, valveRF:false, valveStroke:false,
+  afCHF:false, afHT:false, afDM:false, afAge:false, afStroke:false, afRecent:false, afRheum:false,
+  vteTime:'gt12', vteRec:false, vteCa:false, vteThrombo:false, otherRisk:'low'
+};
+
+/* ---------- reference data ---------- */
+const DENTAL = {
+  low:[
+    ['simple','ถอนฟันธรรมดา 1–3 ซี่ แผลไม่กว้าง'],
+    ['id','Incision & drainage ในช่องปาก'],
+    ['perio','ตรวจปริทันต์ละเอียด 6 จุด'],
+    ['rsi','Root surface instrumentation / ขูดหินน้ำลายใต้เหงือก'],
+    ['resto','บูรณะฟันขอบใต้เหงือก']
+  ],
+  high:[
+    ['complex','ถอนฟันยาก / ถอนติดกัน แผลกว้าง / มากกว่า 3 ซี่'],
+    ['surgext','ผ่าฟัน (surgical extraction)'],
+    ['periosx','Periodontal surgery'],
+    ['prepros','Preprosthetic surgery'],
+    ['periapi','Periradicular surgery'],
+    ['crownl','Crown lengthening'],
+    ['implant','ฝังรากฟันเทียม'],
+    ['gingiva','Gingival recontouring'],
+    ['biopsy','Biopsy']
+  ]
+};
+const DOAC = {
+  apixaban:{name:'Apixaban (Eliquis)', bid:true},
+  rivaroxaban:{name:'Rivaroxaban (Xarelto)', bid:false},
+  edoxaban:{name:'Edoxaban (Lixiana)', bid:false},
+  dabigatran:{name:'Dabigatran (Pradaxa)', bid:true}
+};
+const P2Y12 = {
+  clopidogrel:{name:'Clopidogrel', hold:5},
+  ticagrelor:{name:'Ticagrelor', hold:5},
+  prasugrel:{name:'Prasugrel', hold:7},
+  cilostazol:{name:'Cilostazol', hold:null},
+  dipyridamole:{name:'Dipyridamole', hold:null}
+};
+const RISK_TH = {low:'ต่ำ', moderate:'ปานกลาง', high:'สูง'};
+const RANK = {low:0, moderate:1, high:2};
+
+/* ---------- helpers ---------- */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n=parseFloat(v); return isNaN(n)?null:n; };
+const procD = () => S.procDate ? new Date(S.procDate+'T00:00:00') : today;
+const thDate = (d,opt={weekday:'short',day:'numeric',month:'short'}) => d.toLocaleDateString('th-TH',opt);
+const dLab = o => o===0 ? 'D0' : (o>0?'D+'+o:'D'+o);
+
+function chip(key,val,label,sub){
+  const cur=S[key];
+  const on = Array.isArray(cur) ? cur.includes(val) : (typeof cur==='boolean' ? cur : cur===val);
+  return `<button type="button" class="chip" data-k="${key}" data-v="${esc(String(val))}" aria-pressed="${on}">${label}${sub?`<small>${sub}</small>`:''}</button>`;
+}
+function tog(key,label,sub){ return chip(key,true,label,sub); }
+function field(key,label,type='text',extra=''){
+  return `<label class="f">${label}<input type="${type}" data-f="${key}" value="${esc(S[key])}" ${extra}></label>`;
+}
+
+/* ---------- risk calculations ---------- */
+function age75(){ const a=num(S.age); return a!==null ? a>75 : S.afAge; }
+function chads2(){ return (S.afCHF?1:0)+(S.afHT?1:0)+(age75()?1:0)+(S.afDM?1:0)+(S.afStroke?2:0); }
+function dentalRisk(){
+  if (S.dental.some(id=>DENTAL.high.some(x=>x[0]===id))) return 'high';
+  if (S.dental.length) return 'low';
+  return null;
+}
+function thromboRisk(){
+  const parts=[];
+  if (S.ind.includes('valve')){
+    let lv='low', why='ลิ้นเทียม aortic ชนิด bileaflet ไม่มีปัจจัยเสี่ยง';
+    if (S.valvePos==='mitral'||S.valveType==='old'||S.valveStroke||S.valveMulti){
+      lv='high'; why=[S.valvePos==='mitral'&&'ลิ้นเทียมตำแหน่ง mitral',S.valveType==='old'&&'ลิ้นรุ่นเก่า (caged ball / single tilting disc)',S.valveMulti&&'ลิ้นเทียมหลายตำแหน่ง',S.valveStroke&&'stroke/TIA ภายใน 6 เดือน'].filter(Boolean).join(', ');
+    } else if (S.valveRF||age75()){ lv='moderate'; why='Bileaflet AV ร่วมกับปัจจัยเสี่ยง (AF, HT, DM, CHF, อายุ >75)'; }
+    parts.push({src:'ลิ้นหัวใจเทียมชนิดโลหะ',lv,why});
+  }
+  if (S.ind.includes('af')){
+    const sc=chads2(); let lv=sc>=5?'high':sc>=3?'moderate':'low'; let why=`CHADS₂ = ${sc}`;
+    if (S.afRecent){lv='high';why+=', stroke/TIA ภายใน 3 เดือน';}
+    if (S.afRheum){lv='high';why+=', Rheumatic VHD';}
+    parts.push({src:'Atrial fibrillation',lv,why});
+  }
+  if (S.ind.includes('vte')){
+    let lv='low', why=[];
+    if (S.vteTime==='lt3'){lv='high';why.push('VTE ภายใน 3 เดือน');}
+    if (S.vteThrombo){lv='high';why.push('severe thrombophilia');}
+    if (lv!=='high'){
+      if (S.vteTime==='3to12'){lv='moderate';why.push('VTE 3–12 เดือน');}
+      if (S.vteRec){lv='moderate';why.push('recurrent VTE');}
+      if (S.vteCa){lv='moderate';why.push('มะเร็งที่ยัง active');}
+    }
+    if (!why.length) why.push('VTE ≥12 เดือน ไม่มีปัจจัยเสี่ยงอื่น');
+    parts.push({src:'VTE',lv,why:why.join(', ')});
+  }
+  if (S.ind.includes('other')) parts.push({src:'ข้อบ่งชี้อื่น',lv:S.otherRisk,why:'ประเมินโดยแพทย์'});
+  if (!parts.length) return null;
+  const top=parts.reduce((a,b)=>RANK[b.lv]>RANK[a.lv]?b:a);
+  return {lv:top.lv, parts};
+}
+const isMech = () => S.warfarin && S.ind.includes('valve');
+
+/* ---------- plan builder ---------- */
+function buildPlan(){
+  const P={cards:[], rows:[], general:[], warns:[], refs:new Set(), extRefs:false};
+  const dental=S.cat==='dental';
+  const dr=dentalRisk();
+  const majorS=!dental && S.sBleed==='major';
+  const anyDrug=S.warfarin||S.doac||S.asa||S.p2y12;
+  const procRow={name:'หัตถการ / ตรวจ', cells:{0:{t:'proc',l:dental?'ทำหัตถการ (ช่วงเช้า)':'ผ่าตัด / หัตถการ'}}};
+  const addRow=r=>{P.rows.push(r);return r;};
+  const fill=(row,a,b,t,l)=>{for(let i=a;i<=b;i++) if(!row.cells[i]) row.cells[i]={t,l};};
+
+  if (S.warfarin && S.doac) P.warns.push('เลือกทั้ง Warfarin และ DOAC ร่วมกัน ตรวจสอบรายการยาอีกครั้ง');
+  if (dental && !dr && anyDrug) P.warns.push('ยังไม่ได้เลือกชนิดหัตถการทันตกรรม แผนด้านล่างใช้เกณฑ์ความเสี่ยงต่ำไปก่อน');
+
+  /* ===== Warfarin ===== */
+  if (S.warfarin){
+    P.refs.add('warf');
+    const tr=thromboRisk(); const mech=isMech();
+    const inr=num(S.inr);
+    let inrAge=null;
+    if (S.inrDate){ inrAge=Math.round((procD()-new Date(S.inrDate+'T00:00:00'))/864e5); }
+    const row=addRow({name:'Warfarin', cells:{}});
+    const c={drug:'Warfarin', tone:'go', dec:'', li:[]};
+
+    if (dental){
+      P.refs.add('prasat');
+      const hi=dr==='high', up=hi?3:4;
+      c.dec=`ไม่ต้องหยุดยา ถ้า INR 2–${up}`;
+      c.li.push(['',`ตรวจ INR ภายใน 1–3 วันก่อนทำหัตถการ (ทันตแพทย์หรือพยาบาลคัดกรองสั่งตรวจได้)`]);
+      c.li.push(['',`หัตถการความเสี่ยง${hi?'สูง':'ต่ำ'}: keep INR 2–${up}; INR > ${up} ปรึกษาอายุรแพทย์เพื่อปรับยา`]);
+      if (inr!==null){
+        if (inr>up){c.tone='hold';c.dec=`INR ${inr} สูงเกินเกณฑ์ ปรึกษาอายุรแพทย์ก่อน`;c.li.unshift(['w',`INR ${inr} > ${up}: ยังไม่ทำหัตถการ ส่งปรึกษาอายุรแพทย์เพื่อปรับยา`]);}
+        else if (inr<2){c.li.unshift(['',`INR ${inr} ต่ำกว่าช่วงรักษา: ทำหัตถการได้ แจ้งแพทย์ผู้ดูแลเรื่องปรับขนาดยา`]);}
+        else c.li.unshift(['ok',`INR ${inr} อยู่ในเกณฑ์ ทำหัตถการได้โดยไม่หยุดยา`]);
+      }
+      if (inrAge!==null && (inrAge<0||inrAge>3)) c.li.unshift(['w',`ผล INR ห่างจากวันทำหัตถการ ${inrAge} วัน ต้องใช้ผลภายใน 1–3 วัน ตรวจซ้ำ`]);
+      fill(row,-3,1,'go','กินตามปกติ');
+      procRow.cells[-1]={t:'check',l:'เจาะ INR (ภายใน 1–3 วัน)'};
+    } else {
+      const urg=S.urgency, b=S.sBleed;
+      if (b!=='major'){
+        c.dec='ผ่าตัดได้โดยไม่ต้องหยุดยา';
+        c.li.push(['',b==='minimal'?'หัตถการเลือดออกน้อย (ต้อกระจก, ผิวหนังเล็ก, ทันตกรรมเล็กน้อย) ให้กินยาต่อได้ (คำแนะนำ ++)':'ผ่าตัดเล็ก: ผ่าตัดได้ตามแผนภาพแนวทาง ถ้าศัลยแพทย์ต้องการ INR < 1.5 ให้เลือก "ผ่าตัดใหญ่"']);
+        c.li.push(['','ตรวจ INR ก่อนผ่าตัด ให้อยู่ในช่วงรักษา ไม่สูงเกินเป้าหมาย']);
+        if (inr!==null && inr>3.5) c.li.unshift(['w',`INR ${inr} สูงเกินช่วงรักษา ปรึกษาแพทย์ผู้ดูแลก่อน`]);
+        fill(row,-3,1,'go','กินตามปกติ');
+        procRow.cells[-1]={t:'check',l:'เจาะ INR'};
+      } else if (urg==='emergency'){
+        c.tone='hold'; c.dec='ผ่าตัดฉุกเฉิน: แก้ INR ให้ < 1.5';
+        if (mech){ c.li.push(['w','ลิ้นหัวใจเทียมชนิดโลหะ: แก้ด้วย FFP หรือ PCC ไม่ควรให้ vitamin K']); }
+        else c.li.push(['','ให้ FFP หรือ prothrombin complex concentrate ร่วมกับ vitamin K ขนาดต่ำ (IV หรือ PO)']);
+        c.li.push(['','งด warfarin ตรวจ INR ซ้ำก่อนผ่าตัด']);
+        c.li.push(['','หลังผ่าตัด เริ่ม warfarin 12–24 ชม. ถ้าไม่มีเลือดออก']);
+        row.cells[0]={t:'hold',l:'งด / แก้ INR'}; row.cells[1]={t:'go',l:'เริ่มใหม่ 12–24 ชม.'};
+        procRow.cells[0]={t:'proc',l:'เจาะ INR + ผ่าตัด'};
+      } else if (urg==='urgent'){
+        c.tone='hold'; c.dec='ผ่าตัดเร่งด่วน: งดยาและแก้ INR';
+        if (mech) c.li.push(['w','ลิ้นหัวใจเทียมชนิดโลหะ: ไม่แนะนำ vitamin K (เสี่ยง hypercoagulable) ปรึกษาอายุรแพทย์/หัวใจ ใช้ FFP ถ้าจำเป็น']);
+        else c.li.push(['','Vitamin K 2.5–5 มก. PO หรือ IV (คำแนะนำ ++) หวังให้ INR < 1.5 ภายใน 24 ชม.']);
+        c.li.push(['','งด warfarin ตรวจ INR ซ้ำก่อนผ่าตัด']);
+        c.li.push(['','หลังผ่าตัด เริ่ม warfarin 12–24 ชม. ถ้าไม่มีเลือดออก']);
+        row.cells[-1]={t:'hold',l:mech?'งดยา':'งด + Vit K'}; row.cells[0]={t:'hold',l:'งด'}; row.cells[1]={t:'go',l:'เริ่มใหม่'};
+        procRow.cells[-1]={t:'check',l:'เจาะ INR'};
+      } else {
+        c.tone='hold'; c.dec='หยุด warfarin 5 วันก่อนผ่าตัด';
+        c.li.push(['','กินมื้อสุดท้ายวัน D-6 แล้วงดวัน D-5 ถึง D-1 (แนวทาง: หยุด 4–5 วัน, คำแนะนำ ++)']);
+        c.li.push(['',`ตรวจ INR วัน D-1 เป้าหมาย < 1.5`]);
+        if (mech) c.li.push(['w','ถ้า INR ยัง > 1.5: ลิ้นเทียมชนิดโลหะไม่แนะนำ vitamin K ปรึกษาแพทย์']);
+        else c.li.push(['','ถ้า INR ยัง > 1.5 ใน 1–2 วันก่อนผ่าตัด: vitamin K 1–2 มก. PO']);
+        c.li.push(['','หลังผ่าตัด เริ่ม warfarin ขนาดเดิม 12–24 ชม. ถ้าไม่มีเลือดออก']);
+        row.cells[-6]={t:'go',l:'มื้อสุดท้าย'};
+        fill(row,-5,-1,'hold','งด');
+        row.cells[0]={t:'go',l:'เริ่มเย็น (12–24 ชม.)'};
+        fill(row,1,3,'go','ขนาดเดิม');
+        procRow.cells[-1]={t:'check',l:'เจาะ INR (เป้า < 1.5)'};
+
+        /* bridging */
+        if (tr){
+          const bc={drug:'Bridging (LMWH / UFH)', tone:'bridge', dec:'', li:[]};
+          const w=num(S.weight), cr=num(S.crcl);
+          const dose = w ? (cr!==null&&cr<30 ? `${Math.round(w/10)*10} มก. SC วันละครั้ง (CrCl < 30)` : `${Math.round(w/10)*10} มก. SC ทุก 12 ชม. หรือ ${Math.round(w*1.5/10)*10} มก. SC วันละครั้ง`) : null;
+          if (tr.lv==='low'){
+            bc.tone='go'; bc.dec='ไม่ต้องให้ bridging';
+            bc.li.push(['',`ความเสี่ยงลิ่มเลือด${RISK_TH.low}: หยุด warfarin โดยไม่ต้อง bridging (คำแนะนำ +)`]);
+          } else {
+            bc.dec=`ให้ bridging (ความเสี่ยงลิ่มเลือด${RISK_TH[tr.lv]})`;
+            if (mech) bc.li.push(['','ลิ้นเทียมชนิดโลหะ: แนะนำ IV UFH เมื่อ INR < 2 (ปรับ aPTT 1.5–2 เท่า) หรือ SC LMWH']);
+            else if (tr.lv==='high') bc.li.push(['','Therapeutic SC LMWH (แนะนำ) หรือ IV UFH เมื่อ INR < 2 (คำแนะนำ +)']);
+            else bc.li.push(['','Therapeutic SC LMWH (แนะนำ) หรือ IV UFH หรือ low-dose LMWH (enoxaparin 30 มก. วันละ 2 ครั้ง) เมื่อ INR < 2 (คำแนะนำ ++)']);
+            bc.li.push(['', dose ? `Enoxaparin ${dose}` : 'Enoxaparin 1 มก./กก. ทุก 12 ชม. หรือ 1.5 มก./กก. วันละครั้ง (กรอกน้ำหนักเพื่อคำนวณ)']);
+            if (!w) P.warns.push('ยังไม่ได้กรอกน้ำหนัก จึงคำนวณขนาด enoxaparin ไม่ได้');
+            bc.li.push(['','เข็มสุดท้าย 24 ชม. ก่อนผ่าตัด: ถ้าให้วันละครั้งให้ครึ่งขนาดตอนเช้า D-1; ถ้าให้วันละ 2 ครั้งให้เฉพาะมื้อเช้า D-1']);
+            bc.li.push(['','IV UFH: หยุด 4–6 ชม. ก่อนผ่าตัด']);
+            bc.li.push(['','หลังผ่าตัดใหญ่/เสี่ยงเลือดออกสูง: เริ่ม LMWH/UFH 48–72 ชม. หลังประเมินเลือดออก แล้วให้ต่อจน INR ถึงเป้าหมาย 3 วัน']);
+            const br=addRow({name:'LMWH / UFH', cells:{}});
+            br.cells[-3]={t:'bridge',l:'เริ่ม (INR < 2)'}; br.cells[-2]={t:'bridge',l:'ให้ยา'};
+            br.cells[-1]={t:'bridge',l:'เข็มสุดท้าย (เช้า)'}; br.cells[0]={t:'hold',l:'งด (UFH หยุด 4–6 ชม.ก่อน)'};
+            br.cells[1]={t:'hold',l:'งด'}; br.cells[2]={t:'bridge',l:'เริ่มใหม่ 48–72 ชม.'}; br.cells[3]={t:'bridge',l:'ต่อจน INR ถึงเป้า'};
+          }
+          P.bridge=bc;
+        } else {
+          P.warns.push('ยังไม่ได้เลือกข้อบ่งชี้ของ warfarin จึงประเมินความจำเป็นของ bridging ไม่ได้');
+        }
+      }
+    }
+    if (tr) c.risk=tr;
+    P.cards.push(c); if (P.bridge) P.cards.push(P.bridge);
+  }
+
+  /* ===== DOAC ===== */
+  if (S.doac){
+    const d=DOAC[S.doac]; const row=addRow({name:d.name.split(' ')[0], cells:{}});
+    const c={drug:d.name, tone:'part', dec:'', li:[]};
+    if (dental){
+      P.refs.add('prasat');
+      c.dec='ทำหัตถการช่วงเช้า 18–24 ชม. หลังยามื้อสุดท้าย';
+      if (d.bid){
+        c.li.push(['','กินมื้อเช้าวันก่อนตามปกติ งดมื้อเย็นวันก่อนทำหัตถการ และงดมื้อเช้าวันทำหัตถการ']);
+        row.cells[-2]={t:'go',l:'กินตามปกติ'}; row.cells[-1]={t:'part',l:'กินเช้า งดเย็น'};
+      } else {
+        c.li.push(['','วันละครั้ง: งดมื้อเช้าวันทำหัตถการ (ถ้ากินยามื้อเย็น ให้งดมื้อเย็นวันก่อน เพื่อให้ห่าง 18–24 ชม.)']);
+        fill(row,-2,-1,'go','กินตามปกติ');
+      }
+      c.li.push(['','หลังทำหัตถการ 6 ชม. ถ้าไม่มีเลือดออกรุนแรง กินยาต่อตามปกติ']);
+      row.cells[0]={t:'part',l:'งดเช้า กินต่อหลัง 6 ชม.'}; row.cells[1]={t:'go',l:'กินตามปกติ'};
+    } else {
+      P.extRefs=true; P.refs.add('chest');
+      const cr=num(S.crcl);
+      if (S.sBleed==='minimal'){
+        c.tone='go'; c.dec='กินยาต่อได้';
+        c.li.push(['','หัตถการเลือดออกน้อยมาก: กินยาต่อ หรือเลื่อนยามื้อเช้าวันทำหัตถการไปกินหลังทำเสร็จ']);
+        fill(row,-2,1,'go','กินตามปกติ');
+      } else if (S.urgency!=='elective'){
+        c.tone='hold'; c.dec='ผ่าตัดเร่งด่วน/ฉุกเฉิน: งดยาและปรึกษาแพทย์';
+        c.li.push(['w','บันทึกเวลากินยามื้อสุดท้าย ตรวจ Cr/CrCl, CBC, coagulation']);
+        c.li.push(['',S.doac==='dabigatran'?'ถ้าจำเป็นต้องย้อนฤทธิ์: idarucizumab (ถ้ามี)':'ถ้าจำเป็นต้องย้อนฤทธิ์: PCC หรือ andexanet alfa (ถ้ามี)']);
+        c.li.push(['','ถ้ารอได้ เลื่อนผ่าตัดให้ห่างยามื้อสุดท้ายอย่างน้อย 24–48 ชม.']);
+        row.cells[0]={t:'hold',l:'งด'};
+      } else {
+        const hi=S.sBleed==='major';
+        let H;
+        if (S.doac==='dabigatran'){
+          if (cr!==null && cr<30){ H=null; }
+          else if (cr!==null && cr<50) H=hi?4:2; else H=hi?2:1;
+          if (cr===null) P.warns.push('Dabigatran: ยังไม่ได้กรอก CrCl ใช้ระยะงดยาสำหรับ CrCl ≥ 50 ไปก่อน');
+        } else H=hi?2:1;
+        if (H===null){
+          c.tone='hold'; c.dec='CrCl < 30: ปรึกษาอายุรแพทย์';
+          c.li.push(['w','Dabigatran กับ CrCl < 30 มล./นาที ไม่มีระยะงดยามาตรฐาน ต้องปรึกษาแพทย์']);
+        } else {
+          c.tone='hold'; c.dec=`งดยา ${H} วันก่อนผ่าตัด`;
+          c.li.push(['',`กินมื้อสุดท้ายวัน D-${H+1} งดวัน D-${H} ถึง D0 (${hi?'เสี่ยงเลือดออกสูง':'เสี่ยงเลือดออกต่ำ/ปานกลาง'}${S.doac==='dabigatran'&&cr!==null?`, CrCl ${cr}`:''})`]);
+          c.li.push(['','ไม่ต้อง bridging ด้วย heparin']);
+          c.li.push(['',hi?'เริ่มยาใหม่ 48–72 ชม. หลังผ่าตัด ถ้าเลือดหยุดดี':'เริ่มยาใหม่ 24 ชม. หลังผ่าตัด ถ้าเลือดหยุดดี']);
+          c.li.push(['','ถ้าจะทำ spinal/epidural ปรึกษาวิสัญญีแพทย์เรื่องระยะงดยา']);
+          row.cells[-(H+1)]={t:'go',l:'มื้อสุดท้าย'}; fill(row,-H,0,'hold','งด');
+          if (hi){ row.cells[1]={t:'hold',l:'งด'}; row.cells[2]={t:'go',l:'เริ่มใหม่ 48–72 ชม.'}; }
+          else { row.cells[1]={t:'go',l:'เริ่มใหม่ 24 ชม.'}; }
+        }
+      }
+    }
+    P.cards.push(c);
+  }
+
+  /* ===== Aspirin ===== */
+  if (S.asa){
+    const row=addRow({name:'Aspirin', cells:{}});
+    const c={drug:`Aspirin (${S.asaInd==='primary'?'ป้องกันปฐมภูมิ':'ป้องกันทุติยภูมิ'})`, tone:'go', dec:'กินยาต่อได้', li:[]};
+    if (dental){
+      P.refs.add('prasat');
+      if (dr==='high' && S.asaInd==='primary'){
+        c.tone='part'; c.dec='กินต่อได้ หรือพิจารณางด 7 วัน';
+        c.li.push(['','หัตถการทันตกรรมความเสี่ยงสูงและใช้ ASA เพื่อป้องกันปฐมภูมิ: ทันตแพทย์พิจารณางด ASA 7 วันก่อนได้']);
+        fill(row,-7,-1,'opt','พิจารณางด'); row.cells[0]={t:'opt',l:'พิจารณางด'}; row.cells[1]={t:'go',l:'กินตามปกติ'};
+      } else {
+        c.li.push(['','ใช้ ASA ชนิดเดียว ทำหัตถการได้โดยไม่ต้องหยุดยา ใช้ local hemostasis']);
+        fill(row,-3,1,'go','กินตามปกติ');
+      }
+    } else {
+      P.extRefs=true; P.refs.add('chest');
+      if (S.asaInd==='secondary' || S.sBleed!=='major' || S.stent){
+        c.li.push(['','กินต่อระหว่างผ่าตัด (ป้องกันทุติยภูมิ / หัตถการไม่ใหญ่)']);
+        c.li.push(['w','ยกเว้นผ่าตัดในที่ปิด เช่น สมอง ไขสันหลัง ตาส่วนหลัง หรือศัลยแพทย์ประเมินว่าเลือดออกจะอันตรายมาก ให้ปรึกษาศัลยแพทย์และแพทย์ผู้ดูแล']);
+        fill(row,-3,1,'go','กินตามปกติ');
+      } else {
+        c.tone='hold'; c.dec='งด 7 วันก่อนผ่าตัด';
+        c.li.push(['','ใช้ ASA เพื่อป้องกันปฐมภูมิ และผ่าตัดใหญ่: งด 7 วัน กินใหม่ 24 ชม. หลังผ่าตัดถ้าเลือดหยุดดี']);
+        fill(row,-7,0,'hold','งด'); row.cells[1]={t:'go',l:'เริ่มใหม่'};
+      }
+    }
+    P.cards.push(c);
+  }
+
+  /* ===== P2Y12 / others ===== */
+  if (S.p2y12){
+    const p=P2Y12[S.p2y12]; const row=addRow({name:p.name, cells:{}});
+    const c={drug:p.name+(S.asa?' (ร่วมกับ ASA)':''), tone:'go', dec:'กินยาต่อได้', li:[]};
+    if (dental){
+      P.refs.add('prasat');
+      c.li.push(['','ใช้ชนิดเดียวหรือร่วมกับ ASA (DAPT) ทำหัตถการได้โดยไม่ต้องหยุดยา ร่วมกับ local bleeding control']);
+      fill(row,-3,1,'go','กินตามปกติ');
+    } else {
+      P.extRefs=true; P.refs.add('chest');
+      if (S.stent){
+        c.tone='hold'; c.dec='ห้ามหยุดเอง ปรึกษาแพทย์โรคหัวใจ';
+        c.li.push(['w','มี stent หรือ ACS ภายใน 12 เดือน: เลื่อนผ่าตัดนัดล่วงหน้าออกไปถ้าทำได้ การหยุด P2Y12 ต้องให้แพทย์โรคหัวใจตัดสิน']);
+        fill(row,-3,1,'check','รอความเห็นแพทย์');
+      } else if (S.sBleed==='minimal'){
+        c.li.push(['','หัตถการเลือดออกน้อยมาก: กินยาต่อได้']);
+        fill(row,-3,1,'go','กินตามปกติ');
+      } else if (p.hold===null){
+        c.tone='part'; c.dec='ปรึกษาแพทย์ผู้สั่งยา';
+        c.li.push(['','ระยะงดยาขึ้นกับข้อบ่งชี้และชนิดผ่าตัด ปรึกษาแพทย์ผู้สั่งยา']);
+        fill(row,-3,0,'check','ตามแพทย์สั่ง');
+      } else {
+        c.tone='hold'; c.dec=`งด ${p.hold} วันก่อนผ่าตัด`;
+        c.li.push(['',`${p.name}: งด ${p.hold} วัน${S.p2y12==='ticagrelor'?' (3–5 วัน)':''} กินใหม่ 24 ชม. หลังผ่าตัดถ้าเลือดหยุดดี`]);
+        c.li.push(['','ยืนยันกับแพทย์ผู้สั่งยาว่าหยุดได้ โดยเฉพาะผู้ที่เคยใส่ stent']);
+        row.cells[-(p.hold+1)]={t:'go',l:'มื้อสุดท้าย'}; fill(row,-p.hold,0,'hold','งด'); row.cells[1]={t:'go',l:'เริ่มใหม่'};
+      }
+    }
+    P.cards.push(c);
+  }
+
+  /* ===== MRONJ ===== */
+  if (S.mronj){
+    P.refs.add('dsg');
+    P.cards.push({drug:'ยากลุ่มเสี่ยง MRONJ', tone:'part', dec:'ส่งปรึกษาแพทย์ก่อนหัตถการรุกล้ำกระดูก', li:[
+      ['','เช่น bisphosphonates (alendronate, zoledronate), denosumab, romosozumab, ยา anti-angiogenic'],
+      ['','ส่งปรึกษาแพทย์และวางแผนร่วมกันเป็นลายลักษณ์อักษรก่อนถอนฟัน ผ่าตัด หรือฝังรากเทียม (ST3.3)']
+    ]});
+  }
+
+  /* ===== general ===== */
+  if (dental && anyDrug){
+    P.general.push('ใช้ atraumatic technique');
+    P.general.push('Local hemostasis ด้วย gelfoam หรือเย็บแผล');
+    if (S.warfarin) P.general.push('งดสั่ง NSAIDs และ metronidazole (เสริมฤทธิ์ warfarin)');
+    else P.general.push('หลีกเลี่ยง NSAIDs ใช้ paracetamol ระงับปวด');
+    if (isMech()||S.ie) P.general.push('พิจารณา IE prophylaxis (ลิ้นหัวใจเทียม, เคยเป็น IE, CHD บางชนิด)');
+    P.general.push('นัดติดตามอาการหลังทำหัตถการ 1 สัปดาห์');
+  } else if (!dental && anyDrug){
+    P.general.push('ยืนยันแผนกับศัลยแพทย์ วิสัญญีแพทย์ และแพทย์ผู้สั่งยาต้านลิ่มเลือด');
+    P.general.push('ให้เอกสารตารางงดยาแก่ผู้ป่วย อธิบายวันงดและวันเริ่มยาใหม่');
+    P.general.push('หลังผ่าตัด ประเมินเลือดออกก่อนเริ่มยาทุกครั้ง');
+  }
+
+  P.rows.push(procRow);
+  /* range */
+  let lo=-1, hi=1;
+  P.rows.forEach(r=>Object.keys(r.cells).forEach(k=>{k=+k;lo=Math.min(lo,k);hi=Math.max(hi,k);}));
+  P.days=[]; for(let i=lo;i<=hi;i++) P.days.push(i);
+  P.anyDrug=anyDrug;
+  return P;
+}
+
+/* ---------- text export ---------- */
+function planText(P){
+  const L=[]; const d=procD();
+  L.push('แผนการใช้ยาต้านลิ่มเลือด/ต้านเกล็ดเลือดก่อนหัตถการ');
+  L.push(`ผู้ป่วย: ${S.name||'-'}  HN: ${S.hn||'-'}  อายุ: ${S.age||'-'} ปี  น้ำหนัก: ${S.weight||'-'} กก.  CrCl: ${S.crcl||'-'}`);
+  L.push(`หัตถการ: ${S.procName||(S.cat==='dental'?'ทันตกรรม':'ผ่าตัด/หัตถการ')}  วันที่: ${thDate(d,{day:'numeric',month:'short',year:'numeric'})}`);
+  L.push(`ประเภท: ${procSummary()}`);
+  L.push(`ยาที่ใช้: ${medList()||'-'}`);
+  if (S.warfarin){ const tr=thromboRisk(); if(tr) L.push(`ความเสี่ยงลิ่มเลือด: ${RISK_TH[tr.lv]} (${tr.parts.map(p=>p.src+': '+p.why).join('; ')})`); if(S.inr) L.push(`INR: ${S.inr}${S.inrDate?' ('+thDate(new Date(S.inrDate+'T00:00:00'),{day:'numeric',month:'short'})+')':''}`); }
+  L.push('');
+  if (P.warns.length){ L.push('ข้อควรระวัง:'); P.warns.forEach(w=>L.push('! '+w)); L.push(''); }
+  P.cards.forEach(c=>{ L.push(`[${c.drug}] ${c.dec}`); c.li.forEach(x=>L.push('- '+x[1])); L.push(''); });
+  if (P.rows.some(r=>r.name!=='หัตถการ / ตรวจ')||true){
+    L.push('ตารางยา:');
+    P.days.forEach(o=>{
+      const items=P.rows.filter(r=>r.cells[o]).map(r=>`${r.name}: ${r.cells[o].l}`);
+      if(items.length) L.push(`${dLab(o)} (${thDate(addDays(d,o))}) ${items.join(' | ')}`);
+    });
+    L.push('');
+  }
+  if (P.general.length){ L.push('การดูแลทั่วไป:'); P.general.forEach(g=>L.push('- '+g)); L.push(''); }
+  L.push('อ้างอิง: '+refList(P).join('; '));
+  return L.join('\n');
+}
+function procSummary(){
+  if (S.cat==='dental'){ const r=dentalRisk(); return 'ทันตกรรม'+(r?` ความเสี่ยงเลือดออก${r==='high'?'สูง':'ต่ำ'}`:''); }
+  const u={elective:'นัดล่วงหน้า',urgent:'เร่งด่วน',emergency:'ฉุกเฉิน'}[S.urgency];
+  const b={minimal:'เลือดออกน้อยมาก',minor:'ผ่าตัดเล็ก',major:'ผ่าตัดใหญ่ (ต้องการ INR < 1.5)'}[S.sBleed];
+  return `ผ่าตัด/หัตถการ ${u}, ${b}`;
+}
+function medList(){
+  const m=[];
+  if (S.warfarin) m.push('Warfarin');
+  if (S.doac) m.push(DOAC[S.doac].name);
+  if (S.asa) m.push('Aspirin');
+  if (S.p2y12) m.push(P2Y12[S.p2y12].name);
+  if (S.mronj) m.push('ยากลุ่มเสี่ยง MRONJ');
+  return m.join(', ');
+}
+const REFS={
+  warf:'แนวทางการรักษาผู้ป่วยด้วยยาต้านการแข็งตัวของเลือดชนิดรับประทาน, สมาคมแพทย์โรคหัวใจแห่งประเทศไทยฯ',
+  prasat:'SP-PCTMED-034-00 แนวปฏิบัติผู้ป่วยได้รับยาต้านเกร็ดเลือด/ยาละลายลิ่มเลือดและทำหัตถการทันตกรรม, รพ.ปราสาท (2564)',
+  dsg:'แนวทางปฏิบัติเพื่อความปลอดภัยทางทันตกรรม 2566 (Dental Safety Goals & Guidelines 2023), ทันตแพทยสภา',
+  chest:'แนวปฏิบัติสากล: CHEST 2022 Perioperative Management of Antithrombotic Therapy / PAUSE trial (นอกเอกสารที่แนบ)'
+};
+function refList(P){ return [...P.refs].map(k=>REFS[k]); }
+
+/* ---------- render ---------- */
+const app=document.getElementById('app');
+function renderSteps(){
+  const labels=['ผู้ป่วยและหัตถการ','ยาที่ใช้','แผนการใช้ยา'];
+  document.getElementById('steps').innerHTML=labels.map((l,i)=>`<button type="button" data-step="${i+1}" ${S.step===i+1?'aria-current="step"':''} class="${S.step>i+1?'done':''}"><span class="n">${i+1}</span><span>${l}</span></button>`).join('');
+}
+function step1(){
+  const dr=dentalRisk();
+  return `
+  <section class="blk"><h2>ผู้ป่วย</h2><div class="panel"><div class="grid">
+    <div class="full">${field('name','ชื่อ-สกุล')}</div>
+    ${field('hn','HN')}
+    ${field('age','อายุ (ปี)','number','inputmode="numeric" min="0"')}
+    ${field('weight','น้ำหนัก (กก.)','number','inputmode="decimal" min="0"')}
+    <label class="f">CrCl (มล./นาที)<input type="number" data-f="crcl" value="${esc(S.crcl)}" inputmode="decimal" min="0"><small>ใช้กับ DOAC / LMWH</small></label>
+  </div></div></section>
+
+  <section class="blk"><h2>หัตถการ</h2><div class="panel">
+    <div class="grid">
+      <div class="wide">${field('procName','ชื่อหัตถการ')}</div>
+      <div class="wide">${field('procDate','วันที่ทำหัตถการ','date')}</div>
+    </div>
+    <div class="q">ประเภท</div>
+    <div class="chips">${chip('cat','dental','ทันตกรรม','ถอนฟัน ขูดหินปูน ผ่าตัดในช่องปาก')}${chip('cat','surgery','ผ่าตัด / หัตถการ','ห้องผ่าตัด หรือหัตถการอื่น')}</div>
+    ${S.cat==='dental' ? `
+      <div class="q">หัตถการทันตกรรม <span>(เลือกได้หลายข้อ)</span></div>
+      <div class="grouplab">ความเสี่ยงเลือดออกหลังทำต่ำ</div>
+      <div class="chips">${DENTAL.low.map(x=>chip('dental',x[0],x[1])).join('')}</div>
+      <div class="grouplab">ความเสี่ยงเลือดออกหลังทำสูง</div>
+      <div class="chips">${DENTAL.high.map(x=>chip('dental',x[0],x[1])).join('')}</div>
+      <div class="risk ${dr||'none'}">${dr?`ความเสี่ยงเลือดออกทางทันตกรรม: ${dr==='high'?'สูง':'ต่ำ'}`:'เลือกหัตถการเพื่อประเมินความเสี่ยง'}</div>
+    ` : `
+      <div class="q">ความเร่งด่วน</div>
+      <div class="chips">${chip('urgency','elective','นัดล่วงหน้า','elective')}${chip('urgency','urgent','เร่งด่วน','ภายใน 24–48 ชม.')}${chip('urgency','emergency','ฉุกเฉิน','ทำทันที')}</div>
+      <div class="q">ขนาดหัตถการ / ความเสี่ยงเลือดออก</div>
+      <div class="chips">${chip('sBleed','minimal','เลือดออกน้อยมาก','ต้อกระจก, ผิวหนังเล็ก')}${chip('sBleed','minor','ผ่าตัดเล็ก','เสี่ยงเลือดออกต่ำ-ปานกลาง')}${chip('sBleed','major','ผ่าตัดใหญ่','ต้องการ INR < 1.5')}</div>
+    `}
+  </div></section>`;
+}
+function step2(){
+  const tr=thromboRisk();
+  const ageAuto=num(S.age)!==null;
+  return `
+  <section class="blk"><h2>ยาต้านการแข็งตัวของเลือด</h2><div class="panel">
+    <div class="chips">${tog('warfarin','Warfarin')}</div>
+    <div class="q">DOAC</div>
+    <div class="chips">${chip('doac','','ไม่ใช้')}${Object.entries(DOAC).map(([k,v])=>chip('doac',k,v.name.split(' ')[0],v.name.match(/\((.*)\)/)[1]+(v.bid?', วันละ 2 ครั้ง':', วันละครั้ง'))).join('')}</div>
+    ${S.warfarin ? `
+    <div class="sub">
+      <h3>ข้อมูล Warfarin</h3>
+      <div class="grid">${field('inr','INR ล่าสุด','number','inputmode="decimal" step="0.1" min="0"')}${field('inrDate','วันที่ตรวจ INR','date')}</div>
+      <div class="q">ข้อบ่งชี้ <span>(เลือกได้หลายข้อ)</span></div>
+      <div class="chips">${chip('ind','valve','ลิ้นหัวใจเทียมชนิดโลหะ')}${chip('ind','af','Atrial fibrillation')}${chip('ind','vte','DVT / PE')}${chip('ind','other','อื่น ๆ')}</div>
+      ${S.ind.includes('valve')?`
+        <div class="q">ลิ้นหัวใจเทียม</div>
+        <div class="chips">${chip('valvePos','aortic','Aortic')}${chip('valvePos','mitral','Mitral')}</div>
+        <div class="chips" style="margin-top:8px">${chip('valveType','bileaflet','Bileaflet')}${chip('valveType','old','รุ่นเก่า','caged ball / single tilting disc')}</div>
+        <div class="chips" style="margin-top:8px">${tog('valveMulti','ลิ้นเทียมหลายตำแหน่ง')}${tog('valveRF','มีปัจจัยเสี่ยง','AF, HT, DM, CHF, อายุ >75')}${tog('valveStroke','Stroke/TIA','ภายใน 6 เดือน')}</div>`:''}
+      ${S.ind.includes('af')?`
+        <div class="q">AF: CHADS₂ <span data-derived="chads">= ${chads2()}</span></div>
+        <div class="chips">${tog('afCHF','CHF','+1')}${tog('afHT','Hypertension','+1')}<button type="button" class="chip" data-k="afAge" data-v="true" aria-pressed="${age75()}" data-derived="agechip" ${ageAuto?'disabled':''}>อายุ > 75 ปี<small>${ageAuto?'คำนวณจากอายุ':'+1'}</small></button>${tog('afDM','Diabetes','+1')}${tog('afStroke','เคย Stroke/TIA','+2')}</div>
+        <div class="chips" style="margin-top:8px">${tog('afRecent','Stroke/TIA ภายใน 3 เดือน')}${tog('afRheum','Rheumatic VHD')}</div>`:''}
+      ${S.ind.includes('vte')?`
+        <div class="q">DVT / PE เกิดเมื่อ</div>
+        <div class="chips">${chip('vteTime','lt3','< 3 เดือน')}${chip('vteTime','3to12','3–12 เดือน')}${chip('vteTime','gt12','≥ 12 เดือน')}</div>
+        <div class="chips" style="margin-top:8px">${tog('vteRec','Recurrent VTE')}${tog('vteCa','มะเร็ง active','รักษาใน 3–6 เดือน / palliative')}${tog('vteThrombo','Severe thrombophilia','Protein C/S, AT deficiency, APS')}</div>`:''}
+      ${S.ind.includes('other')?`
+        <div class="q">ความเสี่ยงลิ่มเลือด (แพทย์ประเมิน)</div>
+        <div class="chips">${chip('otherRisk','low','ต่ำ')}${chip('otherRisk','moderate','ปานกลาง')}${chip('otherRisk','high','สูง')}</div>`:''}
+      <div class="risk ${tr?tr.lv:'none'}" data-derived="trisk">${tr?`ความเสี่ยงลิ่มเลือด: ${RISK_TH[tr.lv]}`:'เลือกข้อบ่งชี้เพื่อประเมินความเสี่ยงลิ่มเลือด'}</div>
+    </div>`:''}
+  </div></section>
+
+  <section class="blk"><h2>ยาต้านเกล็ดเลือด</h2><div class="panel">
+    <div class="chips">${tog('asa','Aspirin')}</div>
+    ${S.asa?`<div class="chips" style="margin-top:8px">${chip('asaInd','secondary','ป้องกันทุติยภูมิ','เคย stroke, CAD, PAD')}${chip('asaInd','primary','ป้องกันปฐมภูมิ','เช่น เบาหวาน ไม่มีโรคหลอดเลือด')}</div>`:''}
+    <div class="q">ยาต้านเกล็ดเลือดอื่น</div>
+    <div class="chips">${chip('p2y12','','ไม่ใช้')}${Object.entries(P2Y12).map(([k,v])=>chip('p2y12',k,v.name)).join('')}</div>
+    ${(S.asa||S.p2y12)?`<div class="chips" style="margin-top:10px">${tog('stent','ใส่ stent / ACS ภายใน 12 เดือน')}</div>`:''}
+  </div></section>
+
+  <section class="blk"><h2>อื่น ๆ</h2><div class="panel">
+    <div class="chips">${tog('mronj','ยากลุ่มเสี่ยง MRONJ','bisphosphonate, denosumab ฯลฯ')}${S.cat==='dental'?tog('ie','ข้อบ่งชี้ IE prophylaxis','เคยเป็น IE, CHD บางชนิด'):''}</div>
+  </div></section>`;
+}
+function cardHTML(c){
+  return `<div class="dcard ${c.tone}"><div class="drug">${esc(c.drug)}</div><div class="dec">${esc(c.dec)}</div>
+  ${c.risk?`<div class="risk ${c.risk.lv}" style="margin:0 0 8px">ความเสี่ยงลิ่มเลือด ${RISK_TH[c.risk.lv]}: ${esc(c.risk.parts.map(p=>p.why).join('; '))}</div>`:''}
+  <ul>${c.li.map(x=>`<li class="${x[0]}">${esc(x[1])}</li>`).join('')}</ul></div>`;
+}
+function timelineHTML(P){
+  const d=procD();
+  return `<div class="tl" role="region" aria-label="ตารางยารายวัน" tabindex="0"><table>
+  <thead><tr><th></th>${P.days.map(o=>`<th class="${o===0?'d0':''}"><span class="d">${dLab(o)}</span><span class="dt">${thDate(addDays(d,o))}</span></th>`).join('')}</tr></thead>
+  <tbody>${P.rows.map(r=>`<tr><th scope="row">${esc(r.name)}</th>${P.days.map(o=>`<td>${r.cells[o]?`<div class="cell t-${r.cells[o].t}">${esc(r.cells[o].l)}</div>`:''}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table></div>
+  <div class="legend"><span><i class="t-go"></i>กินยา</span><span><i class="t-hold"></i>งดยา</span><span><i class="t-part"></i>งดบางมื้อ</span><span><i class="t-bridge"></i>Bridging</span><span><i class="t-check"></i>ตรวจ / ประเมิน</span><span><i class="t-opt"></i>พิจารณา</span></div>`;
+}
+function step3(){
+  const P=buildPlan(); window.__P=P;
+  if (!P.anyDrug && !S.mronj){
+    return `<section class="blk"><div class="empty">ยังไม่ได้เลือกยา กลับไปขั้นตอนที่ 2 เพื่อเลือกยาที่ผู้ป่วยใช้</div></section>`;
+  }
+  return `
+  <section class="blk"><h2>${esc(S.procName||procSummary())}</h2>
+    <p class="hint" style="margin-top:-6px">${esc(S.name||'ผู้ป่วย')}${S.hn?' HN '+esc(S.hn):''}, ${thDate(procD(),{weekday:'long',day:'numeric',month:'long',year:'numeric'})}, ${esc(procSummary())}</p>
+    ${P.warns.length?`<div class="dcard warn" style="margin-top:10px"><div class="dec">ตรวจสอบก่อนใช้แผน</div><ul>${P.warns.map(w=>`<li>${esc(w)}</li>`).join('')}</ul></div>`:''}
+    <div class="summary" style="margin-top:10px">${P.cards.map(cardHTML).join('')}</div>
+  </section>
+  ${P.anyDrug?`<section class="blk"><h2>ตารางยารายวัน</h2>${timelineHTML(P)}</section>`:''}
+  ${P.general.length?`<section class="blk"><h2>การดูแลระหว่างและหลังหัตถการ</h2><div class="panel"><ul class="plist">${P.general.map(g=>`<li>${esc(g)}</li>`).join('')}</ul></div></section>`:''}
+  <section class="blk"><h2>ข้อความสำหรับบันทึก</h2>
+    <details class="note"><summary>ดูข้อความที่จะคัดลอก</summary><textarea id="noteText" readonly>${esc(planText(P))}</textarea></details>
+    <div class="panel" style="margin-top:10px"><label class="f">ชื่อโรงพยาบาลบนหัวกระดาษ PDF<input type="text" data-f="hosp" value="${esc(S.hosp)}"></label></div>
+  </section>
+  <section class="blk"><h2 style="font-size:.95rem">อ้างอิง</h2><ul class="refs">${refList(P).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>
+  <p class="disc">เครื่องมือช่วยตัดสินใจเท่านั้น ผลลัพธ์ต้องผ่านการพิจารณาของแพทย์/ทันตแพทย์ผู้รับผิดชอบ ร่วมกับบริบทของผู้ป่วยและสถานพยาบาล</p></section>`;
+}
+function renderBar(){
+  const b=document.getElementById('bar');
+  if (S.step<3) b.innerHTML=`${S.step>1?'<button class="btn" data-nav="-1">ย้อนกลับ</button>':''}<button class="btn pri" data-nav="1">${S.step===1?'ถัดไป: เลือกยา':'ดูแผนการใช้ยา'}</button>`;
+  else b.innerHTML=`<button class="btn" data-nav="-1" style="flex:.6">แก้ไข</button><button class="btn" id="copyBtn">คัดลอก</button><button class="btn pri" id="pdfBtn">บันทึก PDF</button>`;
+}
+function render(keepScroll){
+  renderSteps();
+  app.innerHTML = S.step===1?step1():S.step===2?step2():step3();
+  renderBar();
+  if (!keepScroll) window.scrollTo({top:0});
+}
+function refreshDerived(){
+  const c=document.querySelector('[data-derived="chads"]'); if(c) c.textContent='= '+chads2();
+  const a=document.querySelector('[data-derived="agechip"]'); if(a){ const auto=num(S.age)!==null; a.disabled=auto; a.setAttribute('aria-pressed',age75()); a.querySelector('small').textContent=auto?'คำนวณจากอายุ':'+1'; }
+  const t=document.querySelector('[data-derived="trisk"]'); if(t){ const tr=thromboRisk(); t.className='risk '+(tr?tr.lv:'none'); t.textContent=tr?`ความเสี่ยงลิ่มเลือด: ${RISK_TH[tr.lv]}`:'เลือกข้อบ่งชี้เพื่อประเมินความเสี่ยงลิ่มเลือด'; }
+  const n=document.getElementById('noteText'); if(n && window.__P) n.value=planText(window.__P);
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const ch=e.target.closest('.chip[data-k]');
+  if (ch && !ch.disabled){
+    const k=ch.dataset.k, v=ch.dataset.v, cur=S[k];
+    if (Array.isArray(cur)) S[k]=cur.includes(v)?cur.filter(x=>x!==v):[...cur,v];
+    else if (typeof cur==='boolean') S[k]=!cur;
+    else S[k]=v;
+    const y=window.scrollY; render(true); window.scrollTo({top:y});
+    return;
+  }
+  const st=e.target.closest('[data-step]'); if (st){ S.step=+st.dataset.step; render(); return; }
+  const nv=e.target.closest('[data-nav]'); if (nv){ S.step=Math.min(3,Math.max(1,S.step+ +nv.dataset.nav)); render(); return; }
+  if (e.target.closest('#copyBtn')) copyNote();
+  if (e.target.closest('#pdfBtn')) makePdf();
+});
+document.addEventListener('input',e=>{
+  const f=e.target.dataset.f; if(!f) return;
+  S[f]=e.target.value; refreshDerived();
+});
+
+/* ---------- toast / copy ---------- */
+let tt; function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2600); }
+async function copyNote(){
+  const txt=planText(buildPlan());
+  try{ await navigator.clipboard.writeText(txt); toast('คัดลอกข้อความแล้ว'); return; }catch(_){}
+  const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+  document.body.appendChild(ta); ta.select(); let ok=false; try{ok=document.execCommand('copy');}catch(_){}
+  ta.remove();
+  if (ok) toast('คัดลอกข้อความแล้ว');
+  else { const d=document.querySelector('details.note'); if(d){d.open=true; const n=document.getElementById('noteText'); n.focus(); n.select();} toast('คัดลอกอัตโนมัติไม่ได้ ข้อความถูกเลือกไว้แล้ว กดคัดลอกเอง'); }
+}
+
+/* ---------- PDF ---------- */
+const dlPromise = (window.claude && window.claude.use) ? window.claude.use('downloads').catch(()=>null) : Promise.resolve(null);
+function reportEl(P){
+  const d=procD(); const tr=S.warfarin?thromboRisk():null;
+  const C={go:['#E1F1E6','#2C7A4C'],hold:['#F8E2DE','#B0372A'],part:['#FAEDD6','#9E6410'],bridge:['#EAE6F6','#5946A0'],check:['#E0EAF6','#225E9E'],proc:['#14303A','#FFFFFF'],opt:['#FFFFFF','#9E6410'],warn:['#F8E2DE','#B0372A']};
+  const el=document.createElement('div');
+  el.innerHTML=`<div style="width:700px;box-sizing:border-box;padding:2px 4px;font-family:'IBM Plex Sans Thai',Tahoma,sans-serif;color:#14303A;background:#fff;font-size:12.5px;line-height:1.55">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #0B6B74;padding-bottom:8px">
+    <div><div style="font-size:13px;color:#5A6E74">${esc(S.hosp)}</div><div style="font-size:19px;font-weight:700">แผนการใช้ยาต้านลิ่มเลือด/ต้านเกล็ดเลือดก่อนหัตถการ</div></div>
+    <div style="font-size:11px;color:#5A6E74;text-align:right">พิมพ์เมื่อ ${thDate(new Date(),{day:'numeric',month:'short',year:'numeric'})}</div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px">
+    <tr><td style="padding:3px 0;width:50%"><b>ชื่อ-สกุล</b> ${esc(S.name||'-')}</td><td><b>HN</b> ${esc(S.hn||'-')}</td></tr>
+    <tr><td style="padding:3px 0"><b>อายุ</b> ${esc(S.age||'-')} ปี <b style="margin-left:12px">น้ำหนัก</b> ${esc(S.weight||'-')} กก.</td><td><b>CrCl</b> ${esc(S.crcl||'-')} มล./นาที</td></tr>
+    <tr><td style="padding:3px 0"><b>หัตถการ</b> ${esc(S.procName||'-')}</td><td><b>วันที่</b> ${thDate(d,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</td></tr>
+    <tr><td colspan="2" style="padding:3px 0"><b>ประเภท</b> ${esc(procSummary())}</td></tr>
+    <tr><td colspan="2" style="padding:3px 0"><b>ยาที่ใช้</b> ${esc(medList()||'-')}${S.inr?` <b style="margin-left:12px">INR</b> ${esc(S.inr)}`:''}</td></tr>
+    ${tr?`<tr><td colspan="2" style="padding:3px 0"><b>ความเสี่ยงลิ่มเลือด</b> ${RISK_TH[tr.lv]} (${esc(tr.parts.map(p=>p.src+': '+p.why).join('; '))})</td></tr>`:''}
+  </table>
+  ${P.warns.length?`<div style="margin-top:10px;padding:8px 12px;background:${C.warn[0]};color:${C.warn[1]};border-radius:8px"><b>ตรวจสอบก่อนใช้แผน</b><ul style="margin:4px 0 0;padding-left:18px">${P.warns.map(w=>`<li>${esc(w)}</li>`).join('')}</ul></div>`:''}
+  <div style="margin-top:12px;font-weight:700;font-size:14px">คำแนะนำรายยา</div>
+  ${P.cards.map(c=>`<div style="margin-top:6px;padding:8px 12px;border:1px solid #D2DCDA;border-left:5px solid ${(C[c.tone]||C.go)[1]};border-radius:6px;page-break-inside:avoid">
+    <div style="font-size:11px;color:#5A6E74">${esc(c.drug)}</div><div style="font-weight:700;font-size:13.5px">${esc(c.dec)}</div>
+    <ul style="margin:3px 0 0;padding-left:18px">${c.li.map(x=>`<li style="${x[0]==='w'?'color:#B0372A;font-weight:600':''}">${esc(x[1])}</li>`).join('')}</ul></div>`).join('')}
+  ${P.anyDrug?`<div style="margin-top:12px;font-weight:700;font-size:14px">ตารางยารายวัน</div>
+  <table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:10.5px;table-layout:fixed;page-break-inside:avoid">
+    <tr><th style="border:1px solid #D2DCDA;padding:4px;width:${P.days.length>9?82:100}px;background:#F2F5F4"></th>${P.days.map(o=>`<th style="border:1px solid #D2DCDA;padding:3px;background:${o===0?'#DFEFEE':'#F2F5F4'};text-align:center">${dLab(o)}<div style="font-weight:400;color:#5A6E74;font-size:9.5px">${thDate(addDays(d,o),{day:'numeric',month:'short'})}</div></th>`).join('')}</tr>
+    ${P.rows.map(r=>`<tr><th style="border:1px solid #D2DCDA;padding:4px;text-align:left;background:#F2F5F4">${esc(r.name)}</th>${P.days.map(o=>{const x=r.cells[o];return `<td style="border:1px solid #D2DCDA;padding:3px;text-align:center;${x?`background:${C[x.t][0]};color:${C[x.t][1]};font-weight:600`:''}">${x?esc(x.l):''}</td>`;}).join('')}</tr>`).join('')}
+  </table>`:''}
+  ${P.general.length?`<div style="margin-top:12px;font-weight:700;font-size:14px">การดูแลระหว่างและหลังหัตถการ</div><ul style="margin:4px 0 0;padding-left:18px">${P.general.map(g=>`<li>${esc(g)}</li>`).join('')}</ul>`:''}
+  <div style="display:flex;gap:40px;margin-top:28px;page-break-inside:avoid">
+    ${['ผู้ประเมิน / ผู้สั่งการรักษา','แพทย์ผู้ดูแลยาต้านลิ่มเลือด'].map(t=>`<div style="flex:1;text-align:center;font-size:12px"><div style="border-bottom:1px dotted #5A6E74;height:34px"></div>(......................................................)<div style="color:#5A6E74">${t}</div><div style="color:#5A6E74">วันที่ ........./........./.........</div></div>`).join('')}
+  </div>
+  <div style="margin-top:16px;font-size:9.5px;color:#5A6E74;border-top:1px solid #D2DCDA;padding-top:6px">อ้างอิง: ${refList(P).map(esc).join('; ')}<br>เครื่องมือช่วยตัดสินใจ ผลลัพธ์ต้องผ่านการพิจารณาของแพทย์/ทันตแพทย์ผู้รับผิดชอบ</div>
+  </div>`;
+  return el.firstElementChild;
+}
+async function makePdf(){
+  const btn=document.getElementById('pdfBtn');
+  if (typeof html2pdf==='undefined'){ toast('โหลดตัวสร้าง PDF ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่'); return; }
+  btn.disabled=true; const old=btn.textContent; btn.textContent='กำลังสร้าง...';
+  try{
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    const P=buildPlan();
+    const fname=`preop-anticoag_${(S.hn||S.name||'patient').replace(/[^\w\u0E00-\u0E7F-]+/g,'_')}_${S.procDate||iso(today)}.pdf`;
+    const opt={margin:[10,10,12,10],filename:fname,image:{type:'jpeg',quality:0.96},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],avoid:'div[style*="page-break-inside:avoid"],table'}};
+    const worker=html2pdf().set(opt).from(reportEl(P));
+    const blob=await worker.outputPdf('blob');
+    const dl=await Promise.race([dlPromise,new Promise(r=>setTimeout(()=>r(null),1500))]);
+    if (dl){
+      try{ await dl.save({filename:fname,data:blob}); toast('บันทึก PDF แล้ว'); }
+      catch(err){ toast(err&&err.code==='declined'?'ยกเลิกการบันทึก PDF':'บันทึก PDF ไม่สำเร็จ ('+(err&&err.code||'error')+')'); }
+    } else {
+      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),4000); toast('ดาวน์โหลด PDF แล้ว');
+    }
+  }catch(err){ console.error(err); toast('สร้าง PDF ไม่สำเร็จ ลองใหม่อีกครั้ง'); }
+  finally{ btn.disabled=false; btn.textContent=old; }
+}
+
+render();
+</script>
+</body>
+</html>

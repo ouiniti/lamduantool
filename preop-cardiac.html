@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ประเมินหัวใจก่อนผ่าตัด · AHA/ACC 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --paper:#F2F5F4; --card:#FFFFFF; --ink:#14262E; --muted:#5B6E74; --line:#D6DFDD;
+  --teal:#0B6E69; --teal-soft:#DDEFEC; --teal-ink:#06504C;
+  --go:#24854A; --go-soft:#E1F3E7;
+  --warn:#B7791F; --warn-soft:#FBF0D9;
+  --stop:#C2362B; --stop-soft:#FBE3E0;
+  --wait:#2F6DB5; --wait-soft:#E2ECF8;
+  --c1:#2F9E44; --c2a:#E3B911; --c2b:#EE8A2B; --c3nb:#E8590C; --c3h:#C92A2A;
+  --bridge:#B565C9; --lmwh:#8EC9F0;
+  --shadow:0 1px 0 rgba(20,38,46,.06),0 6px 18px -10px rgba(20,38,46,.25);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1B1F; --card:#172629; --ink:#E5EEEC; --muted:#93A6A9; --line:#2A3C40;
+    --teal:#3FB6AC; --teal-soft:#16393A; --teal-ink:#8FE0D7;
+    --go:#4CC277; --go-soft:#173326; --warn:#E3AA4C; --warn-soft:#3A2E17;
+    --stop:#F06A5E; --stop-soft:#3D1D1A; --wait:#6FA6EA; --wait-soft:#1A2B40;
+    --shadow:0 1px 0 rgba(0,0,0,.3),0 6px 18px -10px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1B1F; --card:#172629; --ink:#E5EEEC; --muted:#93A6A9; --line:#2A3C40;
+  --teal:#3FB6AC; --teal-soft:#16393A; --teal-ink:#8FE0D7;
+  --go:#4CC277; --go-soft:#173326; --warn:#E3AA4C; --warn-soft:#3A2E17;
+  --stop:#F06A5E; --stop-soft:#3D1D1A; --wait:#6FA6EA; --wait-soft:#1A2B40;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 110px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;font-size:16px;line-height:1.6}
+button{font:inherit;color:inherit}
+input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:1px solid var(--line)}
+.top-in{max-width:760px;margin:0 auto;padding:10px 16px 8px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{flex:none}
+.brand h1{font-size:17px;line-height:1.25;margin:0;font-weight:700}
+.brand p{margin:0;font-size:12.5px;color:var(--muted)}
+.rail{display:flex;gap:4px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.node{flex:1 0 auto;min-width:38px;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:0;cursor:pointer}
+.node .bar{height:5px;width:100%;border-radius:3px;background:var(--line)}
+.node span{font-size:11px;color:var(--muted);white-space:nowrap}
+.node.done .bar{background:var(--teal)}
+.node.cur .bar{background:var(--ink)}
+.node.cur span{color:var(--ink);font-weight:600}
+.node.skip{opacity:.35}
+
+main{max-width:760px;margin:0 auto;padding:18px 16px 120px}
+.step-h{display:flex;gap:14px;align-items:flex-start;margin:4px 0 16px}
+.step-ico{flex:none;width:52px;height:52px;border-radius:16px;background:var(--teal-soft);display:grid;place-items:center;font-size:28px}
+.step-h h2{font-size:22px;line-height:1.3;margin:2px 0 4px}
+.step-h p{margin:0;color:var(--muted);font-size:14.5px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card h3{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.card h3 .n{font-size:12px;font-weight:600;color:var(--teal-ink);background:var(--teal-soft);border-radius:20px;padding:1px 9px}
+.hint{font-size:13.5px;color:var(--muted);margin:-4px 0 10px}
+
+details.why{margin:0 0 14px;border:1px dashed var(--line);border-radius:12px;padding:8px 12px;background:var(--card)}
+details.why summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--teal-ink);list-style:none}
+details.why summary::-webkit-details-marker{display:none}
+details.why summary::before{content:"📘 ";}
+details.why[open] summary{margin-bottom:6px}
+details.why div{font-size:14px;color:var(--ink)}
+details.why ul{margin:4px 0;padding-left:20px}
+
+/* option tiles */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.grid.wide{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.grid.two{grid-template-columns:1fr 1fr}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;min-height:56px;transition:border-color .12s,background .12s}
+.opt .e{flex:none;width:34px;height:34px;border-radius:10px;background:var(--card);display:grid;place-items:center;font-size:20px;line-height:1}
+.opt b{display:block;overflow-wrap:anywhere;font-size:14.5px;font-weight:600;line-height:1.35}
+.opt small{display:block;font-size:12.5px;color:var(--muted);line-height:1.4;margin-top:2px}
+.opt[aria-pressed="true"]{border-color:var(--teal);background:var(--teal-soft)}
+.opt[aria-pressed="true"] .e{background:var(--teal);color:#fff}
+.opt[aria-pressed="true"] .e::after{content:"";}
+.opt.danger[aria-pressed="true"]{border-color:var(--stop);background:var(--stop-soft)}
+.opt.danger[aria-pressed="true"] .e{background:var(--stop)}
+.opt .pts{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:8px 10px;cursor:pointer;font-size:14px;min-height:42px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:600}
+
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+label.f{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:4px}
+label.f input,label.f select{border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 10px;font-size:16px;min-height:44px;width:100%}
+.unit{font-size:12px;color:var(--muted)}
+
+.sub{margin-top:10px;padding:12px;border-radius:12px;background:var(--paper);border:1px solid var(--line)}
+.sub .lab{font-size:13px;font-weight:600;margin:8px 0 6px}
+.sub .lab:first-child{margin-top:0}
+
+/* live meter */
+.meter{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line);margin-bottom:14px}
+.meter .big{font-size:34px;font-weight:700;line-height:1;min-width:58px;text-align:center}
+.meter .t b{display:block;font-size:15px}
+.meter .t small{color:var(--muted);font-size:13px}
+.meter.go{border-color:var(--go);background:var(--go-soft)}
+.meter.go .big{color:var(--go)}
+.meter.warn{border-color:var(--warn);background:var(--warn-soft)}
+.meter.warn .big{color:var(--warn)}
+.meter.stop{border-color:var(--stop);background:var(--stop-soft)}
+.meter.stop .big{color:var(--stop)}
+.gauge{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:6px}
+.gauge i{display:block;height:100%;background:linear-gradient(90deg,var(--stop),var(--warn) 58%,var(--go) 59%)}
+
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav-in{max-width:760px;margin:0 auto;display:flex;gap:10px;padding:10px 16px}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:600;font-size:16px;cursor:pointer;min-height:48px}
+.btn.pri{flex:1;background:var(--teal);color:#fff}
+.btn.sec{background:var(--paper);border:1.5px solid var(--line)}
+.btn.ghost{background:none;border:1.5px solid var(--line);font-size:14px;padding:8px 12px;min-height:40px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.peek{font-size:12.5px;color:var(--muted);text-align:center;padding:6px 16px 0;max-width:760px;margin:0 auto}
+.peek b{color:var(--ink)}
+
+/* summary */
+.verdict{border-radius:18px;padding:18px;margin-bottom:16px;display:flex;gap:14px;align-items:flex-start;border:2px solid}
+.verdict .vi{flex:none;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:30px;color:#fff}
+.verdict h2{margin:0;font-size:22px;line-height:1.3}
+.verdict p{margin:4px 0 0;font-size:14.5px}
+.verdict.go{background:var(--go-soft);border-color:var(--go)} .verdict.go .vi{background:var(--go)}
+.verdict.warn{background:var(--warn-soft);border-color:var(--warn)} .verdict.warn .vi{background:var(--warn)}
+.verdict.stop{background:var(--stop-soft);border-color:var(--stop)} .verdict.stop .vi{background:var(--stop)}
+.verdict.wait{background:var(--wait-soft);border-color:var(--wait)} .verdict.wait .vi{background:var(--wait)}
+
+.path{list-style:none;margin:0;padding:0;position:relative}
+.path li{position:relative;padding:0 0 14px 34px}
+.path li::before{content:"";position:absolute;left:11px;top:22px;bottom:-2px;width:2px;background:var(--teal)}
+.path li:last-child::before{display:none}
+.path .dot{position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+.path .q{font-size:14px;color:var(--muted)}
+.path .a{font-weight:600;font-size:15px}
+.path li.end .dot{background:var(--ink)}
+
+.rec{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.rec:first-of-type{border-top:0}
+.rec .ri{flex:none;font-size:20px;width:28px;text-align:center}
+.rec .rt{flex:1;min-width:0;overflow-wrap:anywhere;font-size:14.5px}
+.rec .rt small{display:block;color:var(--muted);font-size:12.5px}
+.cor{flex:none;font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 7px;white-space:nowrap;color:#1b1b1b;margin-top:2px}
+.cor.c1{background:var(--c1);color:#fff}.cor.c2a{background:var(--c2a)}.cor.c2b{background:var(--c2b)}.cor.c3nb{background:var(--c3nb);color:#fff}.cor.c3h{background:var(--c3h);color:#fff}.cor.info{background:var(--line);color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:4px}
+
+/* OAC timeline */
+.tl{overflow-x:auto;margin-top:8px}
+.tl table{border-collapse:separate;border-spacing:3px;min-width:520px;width:100%}
+.tl th{font-size:11.5px;font-weight:600;color:var(--muted)}
+.tl td{height:34px;border-radius:7px;text-align:center;font-size:15px}
+.tl td.take{background:var(--go-soft);color:var(--go)}
+.tl td.hold{background:var(--stop);color:#fff}
+.tl td.bridge{background:var(--bridge);color:#fff}
+.tl td.lmwh{background:var(--lmwh);color:#0c2a40}
+.tl td.op{outline:2px solid var(--ink)}
+.tl-key{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);margin-top:6px}
+.tl-key i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+
+.note{white-space:pre-wrap;font-size:13.5px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;max-height:260px;overflow:auto}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.disc{font-size:12.5px;color:var(--muted);margin-top:18px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.toast.on{opacity:1}
+.mets{display:flex;align-items:flex-end;gap:3px;height:46px;margin-top:8px}
+.mets i{flex:1;background:var(--line);border-radius:3px 3px 0 0}
+.mets i.on{background:var(--teal)}
+.mets i.thr{box-shadow:inset 0 3px 0 var(--stop)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.top,.nav,.actions,.toast{display:none!important} main{padding-bottom:0} body{background:#fff}}
+</style>
+</head>
+<body>
+<a href="index.html" style="display:block;max-width:960px;margin:0 auto;padding:10px 16px;font:500 14px 'Sarabun','IBM Plex Sans Thai',sans-serif;color:#2E6B66;text-decoration:none">&larr; เครื่องมือ รพ.ลำดวน</a>
+<header class="top"><div class="top-in">
+  <div class="brand">
+    <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="10" fill="var(--teal)"/><path d="M5 19h6l2.5-6 4 12 3-9 2 3H31" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div><h1>ประเมินหัวใจก่อนผ่าตัด</h1><p>ผ่าตัดที่ไม่ใช่หัวใจ · ตามแนวทาง AHA/ACC 2026</p></div>
+  </div>
+  <nav class="rail" id="rail" aria-label="ขั้นตอน"></nav>
+</div></header>
+<main id="app"></main>
+<div class="nav"><div class="peek" id="peek"></div><div class="nav-in">
+  <button class="btn sec" id="back">ย้อนกลับ</button>
+  <button class="btn pri" id="next">ถัดไป</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- data ---------------- */
+const RF=[
+ ['ht','🩺','ความดันโลหิตสูง'],['smoke','🚬','สูบบุหรี่'],['dlp','🧈','ไขมันในเลือดสูง'],['dm','🍬','เบาหวาน'],
+ ['obese','⚖️','อ้วน'],['fhx','👨‍👩‍👧','ประวัติครอบครัว CAD ก่อนวัย'] ];
+const CVD=[
+ ['cad','🫀','โรคหลอดเลือดหัวใจ (CAD/MI)'],['hf','💧','หัวใจล้มเหลว (HF)'],['cva','🧠','Stroke / TIA'],['pad','🦵','โรคหลอดเลือดส่วนปลาย'],
+ ['arr','📈','หัวใจเต้นผิดจังหวะ (เช่น AF)'],['shd','🔧','โรคโครงสร้างหัวใจ / ลิ้นหัวใจ'] ];
+const SYM=[
+ ['cp','😣','เจ็บหน้าอก'],['dysp','😮‍💨','เหนื่อยง่าย / หอบ (ใหม่หรือแย่ลง)'],['palp','💓','ใจสั่นไม่ทราบสาเหตุ'],
+ ['sync','😵','หมดสติ / เป็นลม'],['murmur','🔊','ได้ยิน murmur'],['hfsign','🦶','อาการแสดง HF (บวม, JVP สูง, crepitation)'] ];
+const RCRI=[
+ ['hrs','🔪','ผ่าตัดความเสี่ยงสูง','ในช่องท้อง, ในทรวงอก, หลอดเลือดเหนือขาหนีบ'],
+ ['ihd','🫀','โรคหัวใจขาดเลือด','ประวัติ MI, stress test บวก, เจ็บอก, ใช้ nitrate, Q wave'],
+ ['chf','💧','ประวัติหัวใจล้มเหลว','pulmonary edema, PND, S3, CXR vascular redistribution'],
+ ['cvd','🧠','โรคหลอดเลือดสมอง','ประวัติ stroke หรือ TIA'],
+ ['ins','💉','เบาหวานใช้อินซูลิน','รักษาด้วยอินซูลินก่อนผ่าตัด'],
+ ['cr','🫘','Creatinine ≥ 2.0 mg/dL','≈ 177 µmol/L'] ];
+const RCRI_RISK=['0.4%','0.9%','6.6%','11%'];
+const DASI=[
+ ['🧼','ดูแลตัวเองได้','กิน แต่งตัว อาบน้ำ เข้าห้องน้ำ',2.75],
+ ['🏠','เดินในบ้าน','',1.75],
+ ['🚶','เดินบนพื้นราบ 1–2 ช่วงถนน','~100–200 เมตร',2.75],
+ ['🪜','ขึ้นบันได 1 ชั้น หรือเดินขึ้นเนิน','',5.5],
+ ['🏃','วิ่งระยะสั้นได้','',8],
+ ['🍽️','งานบ้านเบา','ปัดฝุ่น ล้างจาน',2.7],
+ ['🧹','งานบ้านปานกลาง','ดูดฝุ่น กวาดบ้าน หิ้วของจากตลาด',3.5],
+ ['🛋️','งานบ้านหนัก','ขัดพื้น ยกเฟอร์นิเจอร์หนัก',8],
+ ['🌱','งานสวน','กวาดใบไม้ ถอนหญ้า เข็นเครื่องตัดหญ้า',4.5],
+ ['❤️','มีเพศสัมพันธ์ได้','',5.25],
+ ['🎳','กิจกรรมนันทนาการปานกลาง','กอล์ฟ โบว์ลิ่ง เต้นรำ แบดคู่',6],
+ ['🏊','กีฬาหนัก','ว่ายน้ำ เทนนิสเดี่ยว บาสเกตบอล ฟุตบอล',7.5] ];
+const FRAIL=[
+ ['😩','Fatigue','รู้สึกเหนื่อยล้าเกือบตลอดเวลา'],
+ ['🪜','Resistance','ขึ้นบันได 10 ขั้นเองไม่ได้'],
+ ['🚶','Ambulation','เดิน 1 ช่วงถนน (~100 ม.) ไม่ได้'],
+ ['📋','Illnesses','มีโรคประจำตัว ≥ 5 โรค'],
+ ['📉','Loss of weight','น้ำหนักลด ≥ 5% ใน 1 ปี'] ];
+const STEPS=[
+ {id:'pt',short:'ผู้ป่วย'},{id:'rf',short:'ปัจจัยเสี่ยง'},{id:'acute',short:'เฉียบพลัน'},
+ {id:'risk',short:'RCRI'},{id:'mod',short:'ตัวปรับ'},{id:'fc',short:'สมรรถภาพ'},
+ {id:'bio',short:'Biomarker'},{id:'eval',short:'ตรวจเพิ่ม'},{id:'meds',short:'ยา'},{id:'sum',short:'สรุป'} ];
+
+/* ---------------- state ---------------- */
+const fresh=()=>({
+ pt:{age:'',sex:'',wt:'',cr:'',crcl:'',op:'',urg:'elective',bleed:'lowmod'},
+ rf:{},cvd:{},sym:{},
+ acute:{acs:false,arr:false,adhf:false},
+ rcri:{},calc:'',
+ mod:{valve:false,vType:'as',vSev:'severe',vSym:'no',vLV:'yes',
+      ph:false,phPAH:false,chd:false,
+      pci:false,pciKind:'des',pciInd:'ccd',pciDate:'',
+      stroke:false,strokeDate:'',
+      cied:false,ciedType:'pm',ciedDep:false,ciedUmb:false,
+      frail:{},frailOther:false},
+ fc:{mode:'dasi',items:{}},
+ bio:{impact:'',bnp:'',nt:'',trop:'nd'},
+ ev:{dec:'',find:''},
+ meds:{bb:false,sglt:'none',glp:'none',met:false,raas:'none',statin:false,statinNeed:false,
+       asa:false,p2y:'none',oac:'none',thr:'low'},
+ oth:{sbp:'',dbp:'',a1c:false,ida:false,blood:false}
+});
+let S=fresh(); let cur=0;
+
+/* ---------------- helpers ---------------- */
+const $=s=>document.querySelector(s);
+const get=p=>p.split('.').reduce((o,k)=>o==null?o:o[k],S);
+const put=(p,v)=>{const k=p.split('.');const last=k.pop();k.reduce((o,x)=>o[x],S)[last]=v};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=v=>v===''||v==null||isNaN(+v)?null:+v;
+const daysSince=d=>{if(!d)return null;const t=new Date(d+'T00:00:00');return Math.floor((Date.now()-t)/864e5)};
+
+function opt(path,e,title,sub,extra=''){
+  const on=!!get(path);
+  return `<button type="button" class="opt ${extra}" data-tog="${path}" aria-pressed="${on}"><span class="e">${e}</span><span><b>${title}</b>${sub?`<small>${sub}</small>`:''}</span></button>`;
+}
+function pick(path,val,e,title,sub){
+  const on=get(path)===val;
+  return `<button type="button" class="opt" data-pick="${path}" data-v="${val}" aria-pressed="${on}"><span class="e">${e}</span><span><b>${title}</b>${sub?`<small>${sub}</small>`:''}</span></button>`;
+}
+function seg(path,items){
+  return `<div class="seg">${items.map(([v,l])=>`<button type="button" data-pick="${path}" data-v="${v}" aria-pressed="${get(path)===v}">${l}</button>`).join('')}</div>`;
+}
+function field(path,label,type='number',ph='',unit=''){
+  return `<label class="f">${label}<input type="${type}" inputmode="${type==='number'?'decimal':'text'}" data-num="${path}" value="${esc(get(path)??'')}" placeholder="${ph}">${unit?`<span class="unit">${unit}</span>`:''}</label>`;
+}
+const why=(t,h)=>`<details class="why"><summary>${t}</summary><div>${h}</div></details>`;
+const head=(e,t,p)=>`<div class="step-h"><div class="step-ico" aria-hidden="true">${e}</div><div><h2>${t}</h2><p>${p}</p></div></div>`;
+
+/* ---------------- derived ---------------- */
+function D(){
+  const age=num(S.pt.age), sex=S.pt.sex;
+  const ageRF=age!=null&&((sex==='f'&&age>65)||(sex==='m'&&age>55));
+  const has=o=>Object.values(o).some(Boolean);
+  const anyRF=has(S.rf)||ageRF, anyCVD=has(S.cvd), anySym=has(S.sym);
+  const any=anyRF||anyCVD||anySym;
+  const emerg=S.pt.urg==='emergency';
+  const acute=S.acute.acs||S.acute.arr||S.acute.adhf;
+  const crNum=num(S.pt.cr);
+  const rcriItems={...S.rcri}; if(crNum!=null&&crNum>=2) rcriItems.cr=true;
+  const rcri=RCRI.filter(r=>rcriItems[r[0]]).length;
+  const calc=num(S.calc);
+  const elevated=rcri>=2||(calc!=null&&calc>=1);
+  const frailScore=Object.values(S.mod.frail).filter(Boolean).length;
+  const frail=frailScore>=3||S.mod.frailOther;
+  const m=S.mod;
+  const mods=[];
+  if(m.valve&&m.vSev==='severe')mods.push('severe valve');
+  if(m.ph)mods.push('PH');if(m.chd)mods.push('CHD');if(m.pci)mods.push('PCI');
+  if(m.stroke)mods.push('stroke');if(m.cied)mods.push('CIED');if(frail)mods.push('frail');
+  const modOn=mods.length>0||(m.valve);
+  const dasi=DASI.reduce((s,d,i)=>s+(S.fc.items[i]?d[3]:0),0);
+  const mets=(0.43*dasi+9.6)/3.5;
+  const fcPoor=S.fc.mode==='unknown'||dasi<=34;
+  const bnp=num(S.bio.bnp), nt=num(S.bio.nt);
+  const bioDone=bnp!=null||nt!=null||S.bio.trop!=='nd';
+  const bioAbn=(bnp!=null&&bnp>92)||(nt!=null&&nt>=300)||S.bio.trop==='high';
+  let crcl=num(S.pt.crcl);
+  if(crcl==null&&age&&num(S.pt.wt)&&crNum&&sex){crcl=((140-age)*num(S.pt.wt))/(72*crNum)*(sex==='f'?.85:1);}
+  return {age,sex,ageRF,anyRF,anyCVD,anySym,any,emerg,acute,rcri,rcriItems,calc,elevated,frailScore,frail,mods,modOn,dasi,mets,fcPoor,bnp,nt,bioDone,bioAbn,crcl};
+}
+
+/* which steps are on the route */
+function route(){
+  const d=D(); const r=['pt','rf'];
+  if(!d.any||d.emerg){r.push('meds','sum');return r}
+  r.push('acute'); if(d.acute){r.push('meds','sum');return r}
+  r.push('risk','mod');
+  if(!d.elevated&&!d.modOn){r.push('meds','sum');return r}
+  r.push('fc'); if(!d.fcPoor){r.push('meds','sum');return r}
+  r.push('bio');
+  if(S.bio.impact==='yes'&&d.bioAbn) r.push('eval');
+  r.push('meds','sum'); return r;
+}
+
+/* ---------------- steps ---------------- */
+const V={};
+V.pt=()=>{const d=D();return head('🧑‍⚕️','ผู้ป่วยและการผ่าตัด','ข้อมูลพื้นฐานใช้คำนวณความเสี่ยง, CrCl และตารางหยุดยา')+
+`<div class="card"><h3>ข้อมูลผู้ป่วย</h3>
+ <div class="fields">${field('pt.age','อายุ','number','ปี','ปี')}
+ <label class="f">เพศ${seg('pt.sex',[['m','👨 ชาย'],['f','👩 หญิง']])}</label>
+ ${field('pt.wt','น้ำหนัก','number','กก.','กิโลกรัม')}
+ ${field('pt.cr','Creatinine','number','mg/dL','mg/dL')}
+ ${field('pt.op','การผ่าตัด','text','เช่น TKA ขวา')}</div>
+ ${d.crcl?`<p class="hint" style="margin:10px 0 0">CrCl (Cockcroft–Gault) ≈ <b>${Math.round(d.crcl)}</b> mL/min</p>`:''}
+</div>
+<div class="card"><h3>ความเร่งด่วนของการผ่าตัด</h3>
+<div class="grid wide">
+ ${pick('pt.urg','emergency','🚨','ฉุกเฉิน (Emergency)','คุกคามชีวิต/อวัยวะ ต้องผ่าภายใน < 2 ชม.')}
+ ${pick('pt.urg','urgent','⏱️','เร่งด่วน (Urgent)','ผ่าภายใน 2–24 ชม. พอมีเวลาประเมินสั้นๆ')}
+ ${pick('pt.urg','timesens','📆','รอได้ไม่เกิน 3 เดือน','Time-sensitive เช่น ผ่าตัดมะเร็ง')}
+ ${pick('pt.urg','elective','🗓️','นัดล่วงหน้า (Elective)','เลื่อนได้เพื่อประเมินให้ครบ')}
+</div></div>
+<div class="card"><h3>ความเสี่ยงเลือดออกของหัตถการ</h3><p class="hint">ใช้วางแผนหยุดยาต้านการแข็งตัวของเลือด</p>
+<div class="grid wide">
+ ${pick('pt.bleed','minimal','🩹','น้อยมาก','ผ่าต้อกระจก, ทำฟันเล็กน้อย, ผิวหนังเล็กน้อย')}
+ ${pick('pt.bleed','lowmod','🩸','ต่ำ–ปานกลาง (< 2%)','ทำฟันซับซ้อน, ส่องกล้อง GI, ผ่าตัดเต้านม')}
+ ${pick('pt.bleed','high','🩸🩸','สูง (≥ 2%)','ผ่าตัดใหญ่, หรือผลเสียร้ายแรงถ้าเลือดออก เช่น neuraxial anesthesia')}
+</div></div>`};
+
+V.rf=()=>{const d=D();return head('🔎','ปัจจัยเสี่ยง โรค หรืออาการทางหัวใจ','ถ้าไม่มีเลย ผ่าตัดได้โดยไม่ต้องประเมินหัวใจเพิ่ม')+
+`<div class="card"><h3>ปัจจัยเสี่ยง</h3>
+ ${d.ageRF?`<p class="hint">✔ นับอายุเป็นปัจจัยเสี่ยงแล้ว (${d.sex==='f'?'หญิง > 65 ปี':'ชาย > 55 ปี'})</p>`:''}
+ <div class="grid">${RF.map(r=>opt('rf.'+r[0],r[1],r[2])).join('')}</div></div>
+<div class="card"><h3>โรคหัวใจและหลอดเลือดที่มีอยู่</h3>
+ <div class="grid">${CVD.map(r=>opt('cvd.'+r[0],r[1],r[2])).join('')}</div></div>
+<div class="card"><h3>อาการ / อาการแสดง</h3>
+ <div class="grid">${SYM.map(r=>opt('sym.'+r[0],r[1],r[2])).join('')}</div></div>
+${!d.any?`<div class="meter go"><div class="big">✓</div><div class="t"><b>ยังไม่มีข้อใดเลย</b><small>ถ้ายืนยัน → ผ่าตัดได้ ไม่ต้องประเมินหัวใจเพิ่ม</small></div></div>`:''}
+${d.emerg&&d.any?`<div class="meter warn"><div class="big">🚨</div><div class="t"><b>ผ่าตัดฉุกเฉิน</b><small>ข้ามการประเมินเพิ่ม → ผ่าตัดได้ทันที</small></div></div>`:''}`};
+
+V.acute=()=>head('⚠️','ภาวะหัวใจที่ไม่คงที่','มีข้อใดข้อหนึ่ง = ต้องรักษาก่อน และปรึกษาทีมสหสาขา')+
+`<div class="card"><div class="grid wide">
+ ${opt('acute.acs','💔','Acute coronary syndrome','STEMI / NSTEMI / unstable angina','danger')}
+ ${opt('acute.arr','⚡','หัวใจเต้นผิดจังหวะที่ไม่คงที่','เช่น VT, AF rapid ventricular response, high-grade AV block','danger')}
+ ${opt('acute.adhf','🌊','หัวใจล้มเหลวกำเริบ','Decompensated HF: น้ำท่วมปอด, หอบนอนราบไม่ได้','danger')}
+</div></div>
+${why('ทำไมต้องหยุดที่ขั้นนี้','ภาวะเหล่านี้ทำให้เกิด MACE หลังผ่าตัดสูงมาก แนวทางแนะนำให้รักษาภาวะเฉียบพลันก่อน แล้วปรึกษาทีมสหสาขาว่าจะเลื่อนผ่าตัด, รักษาแบบไม่ผ่าตัด หรือดูแลแบบประคับประคอง<br>ผู้ป่วย ACS ที่จะผ่าตัด elective ควรได้รับ revascularization ตามข้อบ่งชี้และเลื่อนผ่าตัด <b>(Class 1)</b>')}`;
+
+V.risk=()=>{const d=D();const pct=d.calc!=null?d.calc+'%':RCRI_RISK[Math.min(d.rcri,3)];
+return head('🧮','คำนวณความเสี่ยง (RCRI)','เลือกข้อที่มี ข้อละ 1 คะแนน · RCRI > 1 หรือ MACE ≥ 1% = ความเสี่ยงสูง')+
+`<div class="meter ${d.elevated?'stop':'go'}"><div class="big">${d.rcri}</div><div class="t">
+ <b>${d.elevated?'ความเสี่ยงสูง (Elevated risk)':'ความเสี่ยงต่ำ (Low risk)'}</b>
+ <small>RCRI ${d.rcri} คะแนน · MACE โดยประมาณ ${pct}${d.calc!=null?' (จากเครื่องคิดเลขอื่น)':' (Lee 1999)'}</small></div></div>
+<div class="card"><div class="grid wide">${RCRI.map(r=>{
+ const auto=r[0]==='cr'&&num(S.pt.cr)>=2;
+ return auto?`<button type="button" class="opt" aria-pressed="true" disabled><span class="e">${r[1]}</span><span><b>${r[2]}</b><small>เลือกอัตโนมัติจาก Cr ${S.pt.cr} mg/dL</small></span></button>`:opt('rcri.'+r[0],r[1],r[2],r[3]);}).join('')}</div></div>
+<div class="card"><h3>ใช้เครื่องคิดเลขอื่นแทน (ไม่บังคับ)</h3><p class="hint">เช่น ACS NSQIP Surgical Risk Calculator หรือ Gupta MICA ถ้าใส่ค่า จะใช้ค่านี้แทน RCRI</p>
+<div class="fields">${field('calc','ความเสี่ยง MACE','number','%','%')}</div></div>
+${why('RCRI คืออะไร','Revised Cardiac Risk Index (Lee 1999) ทำนาย MI, น้ำท่วมปอด, VF, complete heart block และเสียชีวิตจากหัวใจ<ul><li>0 คะแนน ≈ 0.4%</li><li>1 คะแนน ≈ 0.9%</li><li>2 คะแนน ≈ 6.6%</li><li>≥ 3 คะแนน ≈ 11%</li></ul>แนวทาง 2026 แนะนำใช้เครื่องมือทำนายความเสี่ยงที่ผ่านการ validate <b>(Class 2a)</b>')}`};
+
+V.mod=()=>{const m=S.mod;const d=D();
+return head('🧩','ตัวปรับความเสี่ยง (Risk modifiers)','ภาวะที่เพิ่มความเสี่ยง MACE นอกเหนือจากคะแนน ถ้ามี → ควรปรึกษาทีม')+
+`<div class="card"><div class="grid wide">
+ ${opt('mod.valve','🚪','โรคลิ้นหัวใจ (ปานกลาง–รุนแรง)','AS, MS, AR, MR')}
+ ${opt('mod.ph','🫁','ความดันหลอดเลือดปอดสูงรุนแรง','mPAP > 40, PVR > 5 WU หรือ RV ทำงานลดลง')}
+ ${opt('mod.chd','🧬','โรคหัวใจพิการแต่กำเนิดความเสี่ยงสูง','Adult congenital heart disease')}
+ ${opt('mod.pci','🪡','เคยใส่ขดลวด / ทำบอลลูน / CABG','PCI หรือผ่าตัดบายพาส')}
+ ${opt('mod.stroke','🧠','Stroke / TIA','ระบุวันที่เกิดล่าสุด')}
+ ${opt('mod.cied','🔋','มีเครื่องกระตุ้นหัวใจ','Pacemaker / ICD (CIED)')}
+</div>
+${m.valve?`<div class="sub"><div class="lab">ชนิดลิ้นหัวใจ</div>${seg('mod.vType',[['as','AS ตีบ (เอออร์ติก)'],['ms','MS ตีบ (ไมทรัล)'],['ar','AR รั่ว'],['mr','MR รั่ว']])}
+ <div class="lab">ความรุนแรง</div>${seg('mod.vSev',[['mod','ปานกลาง'],['severe','รุนแรง']])}
+ <div class="lab">มีอาการ (เหนื่อย เจ็บอก เป็นลม)</div>${seg('mod.vSym',[['no','ไม่มีอาการ'],['yes','มีอาการ']])}
+ <div class="lab">Echo ภายใน 1 ปี: LV function ปกติ</div>${seg('mod.vLV',[['yes','ปกติ'],['no','ผิดปกติ / ไม่มี echo']])}</div>`:''}
+${m.ph?`<div class="sub">${opt('mod.phPAH','💊','ใช้ยารักษา PAH อยู่','เช่น sildenafil, bosentan, prostacyclin')}</div>`:''}
+${m.pci?`<div class="sub"><div class="lab">ชนิดหัตถการ</div>${seg('mod.pciKind',[['balloon','บอลลูนอย่างเดียว'],['bms','BMS'],['des','DES'],['cabg','CABG']])}
+ ${m.pciKind!=='cabg'?`<div class="lab">ข้อบ่งชี้</div>${seg('mod.pciInd',[['acs','ACS'],['ccd','Chronic coronary disease']])}`:''}
+ <div class="lab">วันที่ทำ</div><div class="fields">${field('mod.pciDate','','date')}</div>
+ ${daysSince(m.pciDate)!=null?`<p class="hint" style="margin:6px 0 0">ผ่านมา ${daysSince(m.pciDate)} วัน (≈ ${(daysSince(m.pciDate)/30.4).toFixed(1)} เดือน)</p>`:''}</div>`:''}
+${m.stroke?`<div class="sub"><div class="lab">วันที่เกิด stroke/TIA ครั้งล่าสุด</div><div class="fields">${field('mod.strokeDate','','date')}</div>
+ ${daysSince(m.strokeDate)!=null?`<p class="hint" style="margin:6px 0 0">ผ่านมา ${daysSince(m.strokeDate)} วัน</p>`:''}</div>`:''}
+${m.cied?`<div class="sub"><div class="lab">ชนิดเครื่อง</div>${seg('mod.ciedType',[['pm','Pacemaker'],['icd','ICD / CRT-D']])}
+ <div class="grid two" style="margin-top:8px">${opt('mod.ciedDep','❗','พึ่งพาเครื่อง (pacing-dependent)','')}${opt('mod.ciedUmb','⚡','ผ่าตัดเหนือสะดือ ใช้จี้ไฟฟ้า','คาดว่ามี EMI')}</div></div>`:''}
+</div>
+<div class="card"><h3>ภาวะเปราะบาง — FRAIL scale <span class="n">${d.frailScore}/5</span></h3>
+<p class="hint">${d.age>=65?'แนะนำประเมินในผู้ป่วยอายุ ≥ 65 ปีที่ผ่าตัดความเสี่ยงสูง (Class 2a)':'ประเมินในผู้สูงอายุ หรือผู้ที่ดูเปราะบาง'} · 0 ปกติ, 1–2 เริ่มเปราะบาง, 3–5 เปราะบาง</p>
+<div class="grid wide">${FRAIL.map((f,i)=>opt('mod.frail.'+i,f[0],f[2],f[1])).join('')}
+${opt('mod.frailOther','🧓','เปราะบางจากเครื่องมืออื่น','เช่น Clinical Frailty Scale ≥ 5')}</div></div>
+${why('ทำไมภาวะเหล่านี้สำคัญ','แต่ละภาวะมีแนวทางเฉพาะ เช่น severe AS ควรพิจารณาเปลี่ยนลิ้นก่อนผ่าตัด elective, เคยใส่ DES ต้องดูระยะเวลาก่อนหยุดยาต้านเกล็ดเลือด, stroke ภายใน 3 เดือนควรเลื่อนผ่าตัด elective ระบบจะสรุปคำแนะนำเฉพาะให้ในหน้าสุดท้าย')}`};
+
+V.fc=()=>{const d=D();const bars=Array.from({length:10},(_,i)=>`<i class="${i<Math.round(d.mets)?'on':''} ${i===3?'thr':''}" style="height:${18+i*8}%"></i>`).join('');
+return head('🪜','สมรรถภาพร่างกาย (DASI)','ถามผู้ป่วย: “ทำกิจกรรมเหล่านี้ได้ไหม” · DASI ≤ 34 หรือ < 4 METs = สมรรถภาพต่ำ')+
+`<div class="card">${seg('fc.mode',[['dasi','ประเมินด้วย DASI'],['unknown','ประเมินไม่ได้ / ไม่ทราบ']])}</div>
+${S.fc.mode==='dasi'?`<div class="meter ${d.fcPoor?'stop':'go'}"><div class="big">${d.dasi.toFixed(1)}</div><div class="t" style="flex:1">
+ <b>${d.fcPoor?'สมรรถภาพต่ำ (≤ 34)':'สมรรถภาพดี (> 34)'}</b><small>≈ ${d.mets.toFixed(1)} METs · เส้นแดง = 4 METs</small><div class="mets" aria-hidden="true">${bars}</div></div></div>
+<div class="card"><div class="grid wide">${DASI.map((x,i)=>`<button type="button" class="opt" data-tog="fc.items.${i}" aria-pressed="${!!S.fc.items[i]}"><span class="e">${x[0]}</span><span><b>${x[1]}</b>${x[2]?`<small>${x[2]}</small>`:''}</span><span class="pts">${x[3]}</span></button>`).join('')}</div></div>`:
+`<div class="meter stop"><div class="big">?</div><div class="t"><b>ถือว่าสมรรถภาพต่ำหรือไม่ทราบ</b><small>ไปขั้นถัดไป: พิจารณาตรวจเพิ่มเติม</small></div></div>`}
+${why('DASI คืออะไร','Duke Activity Status Index มี 12 คำถาม คะแนน 0–58.2 · DASI ≤ 34 สัมพันธ์กับการเสียชีวิตหรือ MI ใน 30 วันเพิ่มขึ้น · METs = (0.43 × DASI + 9.6) ÷ 3.5<br>แนวทางแนะนำประเมินสมรรถภาพแบบมีโครงสร้าง <b>(Class 2a)</b> · ผู้ป่วยที่สมรรถภาพดีและไม่มีอาการ ผ่าตัดได้โดยไม่ต้องตรวจเพิ่ม')}`};
+
+V.bio=()=>{const d=D();
+return head('🧪','ตรวจเพิ่มเติมจะเปลี่ยนการดูแลไหม','ถ้าไม่เปลี่ยน ไม่ต้องตรวจเพิ่ม · ถ้าเปลี่ยน เริ่มจาก biomarker')+
+`<div class="card"><h3>ผลการตรวจเพิ่มเติมจะมีผลต่อการตัดสินใจ/การดูแลรอบผ่าตัดหรือไม่</h3>
+<div class="grid two">${pick('bio.impact','yes','✅','มีผล','เช่น ผู้ป่วยยอมรับการรักษาหัวใจ/เปลี่ยนแผนได้')}${pick('bio.impact','no','➖','ไม่มีผล','เช่น ผ่าตัดแน่นอนไม่ว่าผลจะเป็นอย่างไร')}</div></div>
+${S.bio.impact==='yes'?`<div class="card"><h3>Biomarker ก่อนผ่าตัด</h3><p class="hint">ผิดปกติถ้า BNP > 92 ng/L, NT-proBNP ≥ 300 ng/L หรือ troponin > 99th percentile URL · เว้นว่างถ้ายังไม่ได้ตรวจ</p>
+<div class="fields">${field('bio.bnp','BNP','number','ng/L','ng/L (pg/mL)')}${field('bio.nt','NT-proBNP','number','ng/L','ng/L (pg/mL)')}</div>
+<div class="sub"><div class="lab">Troponin</div>${seg('bio.trop',[['nd','ไม่ได้ตรวจ'],['normal','ปกติ'],['high','> 99th percentile']])}</div>
+${d.bioDone?`<div class="meter ${d.bioAbn?'stop':'go'}" style="margin:12px 0 0"><div class="big">${d.bioAbn?'↑':'✓'}</div><div class="t"><b>${d.bioAbn?'Biomarker ผิดปกติ':'Biomarker ปกติ'}</b><small>${d.bioAbn?'ไปขั้นถัดไป: ปรึกษาทีมสหสาขา':'ผ่าตัดได้'}</small></div></div>`:''}
+</div>`:''}
+${why('ทำไมใช้ BNP / NT-proBNP','ในผู้ป่วยที่มี CVD, อายุ ≥ 65 ปี หรือ ≥ 45 ปีที่มีอาการ และผ่าตัดความเสี่ยงสูง การตรวจ BNP/NT-proBNP ช่วยเสริมการประเมินความเสี่ยง <b>(Class 2a)</b> · troponin ก่อนผ่าตัดอาจพิจารณา <b>(Class 2b)</b>')}`};
+
+V.eval=()=>head('🫀','ประเมินหัวใจเพิ่มเติม','ทีมสหสาขาร่วมกับผู้ป่วยตัดสินใจว่าคุ้มที่จะตรวจต่อหรือไม่')+
+`<div class="card"><h3>ผลการหารือทีมสหสาขา</h3><div class="grid two">
+ ${pick('ev.dec','pursue','🔬','ตรวจหัวใจเพิ่ม','Echo, stress test หรือ CCTA')}
+ ${pick('ev.dec','defer','⏭️','ไม่ตรวจเพิ่ม','ตัดสินใจต่อโดยไม่รอผล')}</div></div>
+${S.ev.dec==='pursue'?`<div class="card"><h3>ผลการตรวจ</h3><div class="grid wide">
+ ${pick('ev.find','low','🟢','ผลความเสี่ยงต่ำ','ไม่พบ ischemia สำคัญ')}
+ ${pick('ev.find','high','🔴','ผลความเสี่ยงสูง','สงสัย left main หรือหลายเส้น')}
+ ${pick('ev.find','pend','⏳','รอผล','ยังไม่ได้ตรวจ')}</div></div>`:''}
+${why('ควรเลือกตรวจอะไร','<ul><li>Echocardiography: สงสัยโรคลิ้นหัวใจ, เหนื่อยใหม่, LV ทำงานแย่ลง</li><li>Noninvasive stress test: สมรรถภาพต่ำ + ความเสี่ยงสูง <b>(2b)</b></li><li>CCTA <b>(2b)</b></li></ul>ไม่แนะนำ revascularization ก่อนผ่าตัดเป็นประจำใน CAD ที่ไม่ใช่ left main <b>(Class 3)</b>')}`;
+
+V.meds=()=>{const m=S.meds;const d=D();
+return head('💊','ยาและการเตรียมตัว','เลือกยาที่ผู้ป่วยใช้อยู่ ระบบจะสรุปแผนหยุด/ให้ยาต่อ')+
+`<div class="card"><h3>ยาหัวใจ/ความดัน</h3><div class="grid wide">
+ ${opt('meds.bb','🫀','Beta blocker','เช่น bisoprolol, metoprolol, carvedilol')}
+ ${opt('meds.statin','💊','Statin','')}
+ ${!m.statin?opt('meds.statinNeed','📋','ยังไม่ได้ statin แต่มีข้อบ่งชี้','ASCVD หรือความเสี่ยง 10 ปีสูง'):''}
+</div><div class="sub"><div class="lab">ACEI / ARB / ARNI / MRA</div>${seg('meds.raas',[['none','ไม่ได้ใช้'],['htn','ใช้รักษาความดัน'],['hfref','ใช้รักษา HFrEF']])}</div></div>
+<div class="card"><h3>ยาเบาหวาน/ลดน้ำหนัก</h3><div class="grid wide">${opt('meds.met','💊','Metformin','')}</div>
+<div class="sub"><div class="lab">SGLT2 inhibitor</div>${seg('meds.sglt',[['none','ไม่ได้ใช้'],['cde','Empa / Dapa / Cana'],['ertu','Ertugliflozin']])}
+<div class="lab">GLP-1 agonist</div>${seg('meds.glp',[['none','ไม่ได้ใช้'],['weekly','ฉีดสัปดาห์ละครั้ง'],['daily','รายวัน']])}</div></div>
+<div class="card"><h3>ยาต้านเกล็ดเลือด / ยาต้านการแข็งตัวของเลือด</h3><div class="grid wide">${opt('meds.asa','💊','Aspirin','')}</div>
+<div class="sub"><div class="lab">P2Y12 inhibitor</div>${seg('meds.p2y',[['none','ไม่ได้ใช้'],['clopidogrel','Clopidogrel'],['prasugrel','Prasugrel'],['ticagrelor','Ticagrelor']])}
+<div class="lab">ยาต้านการแข็งตัวของเลือด</div>${seg('meds.oac',[['none','ไม่ได้ใช้'],['xa','Apixaban / Rivaroxaban / Edoxaban'],['dabi','Dabigatran'],['warf','Warfarin']])}
+${m.oac!=='none'?`<p class="hint" style="margin:8px 0 0">CrCl ${d.crcl?`≈ <b>${Math.round(d.crcl)}</b> mL/min`:'ยังไม่ทราบ — ใส่ อายุ/น้ำหนัก/Cr ในหน้าแรก หรือใส่ค่าที่นี่'}</p><div class="fields" style="margin-top:6px">${field('pt.crcl','CrCl (ถ้าทราบ)','number','mL/min','mL/min')}</div>`:''}
+${m.oac==='warf'?`<div class="lab">ความเสี่ยงลิ่มเลือด (ข้อบ่งชี้ warfarin)</div><div class="grid wide">
+ ${pick('meds.thr','low','🟢','ต่ำ','AF CHA₂DS₂-VASc 1–4 ไม่เคย stroke · VTE > 12 เดือน · Bileaflet AVR ไม่มีปัจจัยเสี่ยง')}
+ ${pick('meds.thr','mod','🟡','ปานกลาง','CHA₂DS₂-VASc 5–6 · VTE 3–12 เดือน/เป็นซ้ำ · Bileaflet AVR มีปัจจัยเสี่ยง · มะเร็ง')}
+ ${pick('meds.thr','high','🔴','สูง','Mechanical mitral valve · VTE < 3 เดือน · CHA₂DS₂-VASc ≥ 7 · AF + rheumatic valve · stroke < 3 เดือน · LV thrombus')}</div>`:''}
+</div></div>
+<div class="card"><h3>อื่นๆ</h3><div class="fields">${field('oth.sbp','SBP ล่าสุด','number','mmHg','mmHg')}${field('oth.dbp','DBP ล่าสุด','number','mmHg','mmHg')}</div>
+<div class="grid wide" style="margin-top:10px">
+ ${opt('oth.a1c','🩸','เบาหวาน: ยังไม่มี HbA1c ใน 3 เดือน','')}
+ ${opt('oth.ida','🧲','โลหิตจางจากขาดธาตุเหล็ก','')}
+ ${opt('oth.blood','🩸','คาดว่าเสียเลือดระหว่างผ่าตัด','')}</div></div>`};
+
+/* ---------------- recommendations engine ---------------- */
+function plan(){
+  const d=D(); const path=[]; const recs=[]; const special=[]; const meds=[]; const post=[];
+  let verdict='go', title='', reason='';
+  const R=(arr,cor,ic,t,sm)=>arr.push({cor,ic,t,sm});
+  const set=(v,t,r)=>{verdict=v;title=t;reason=r};
+  const elective=S.pt.urg==='elective', ts=S.pt.urg==='timesens';
+  const eligBio=d.anyCVD||(d.age>=65)||(d.age>=45&&d.anySym);
+
+  path.push(['มีปัจจัยเสี่ยง / โรค / อาการ CV ?',d.any?'มี':'ไม่มี']);
+  if(!d.any){set('go','ผ่าตัดได้ตามแผน','ไม่มีปัจจัยเสี่ยง โรค หรืออาการทางหัวใจและหลอดเลือด');
+    R(recs,'3nb','📄','ไม่แนะนำ ECG ก่อนผ่าตัดเป็นประจำในผู้ป่วยไม่มีอาการที่ผ่าตัดความเสี่ยงต่ำ');
+  } else {
+   path.push(['ผ่าตัดฉุกเฉิน ?',d.emerg?'ใช่':'ไม่ใช่']);
+   if(d.emerg){set('go','ผ่าตัดได้ทันที','ผ่าตัดฉุกเฉิน — ไม่ควรเลื่อนเพื่อประเมินหัวใจ');
+     R(recs,'info','🩺','เฝ้าระวังและจัดการภาวะหัวใจระหว่าง/หลังผ่าตัด ประเมินเพิ่มเติมหลังพ้นภาวะฉุกเฉิน');
+   } else {
+    path.push(['ACS / arrhythmia ไม่คงที่ / HF กำเริบ ?',d.acute?'มี':'ไม่มี']);
+    if(d.acute){set('stop','ชะลอการผ่าตัด รักษาภาวะหัวใจก่อน','มีภาวะหัวใจเฉียบพลันที่ไม่คงที่');
+      R(recs,'info','🚑','รักษาภาวะหัวใจเฉียบพลัน และปรึกษาทีมสหสาขาเรื่องเลื่อนผ่าตัด รักษาแบบไม่ผ่าตัด หรือดูแลแบบประคับประคอง');
+      if(S.acute.acs)R(recs,'1','🫀','ACS ที่จะผ่าตัด elective: ทำ revascularization ตามข้อบ่งชี้และเลื่อนผ่าตัด');
+    } else {
+     const rlab=d.calc!=null?`MACE ${d.calc}%`:`RCRI ${d.rcri} (≈ ${RCRI_RISK[Math.min(d.rcri,3)]})`;
+     path.push(['ประเมินความเสี่ยง',`${rlab} → ${d.elevated?'สูง':'ต่ำ'}${d.modOn?' + มีตัวปรับความเสี่ยง':''}`]);
+     R(recs,'2a','🧮','ใช้เครื่องมือทำนายความเสี่ยง MACE ที่ผ่านการ validate',rlab);
+     if(!d.elevated&&!d.modOn){
+       set('go','ผ่าตัดได้ตามแผน','ความเสี่ยงต่ำ และไม่มีตัวปรับความเสี่ยง');
+       if(!d.anyCVD&&!d.anySym)R(recs,'3nb','📄','ไม่แนะนำ ECG เป็นประจำในผู้ป่วยไม่มีอาการที่ผ่าตัดความเสี่ยงต่ำ');
+       R(recs,'3nb','🏃','ไม่แนะนำ stress test เป็นประจำในผู้ป่วยความเสี่ยงต่ำ');
+     } else {
+       if(d.modOn){
+         R(recs,'info','👥','ปรึกษาทีมที่เกี่ยวข้องเรื่องจังหวะเวลาผ่าตัด การตรวจวินิจฉัย และการดูแลรอบผ่าตัด',d.mods.join(', ')||'โรคลิ้นหัวใจ');
+       }
+       if(d.anyCVD||d.anySym)R(recs,'2a','📈','ทำ 12-lead ECG เป็น baseline (มี CVD หรือมีอาการ)');
+       else R(recs,'2b','📈','พิจารณา 12-lead ECG (ความเสี่ยงสูง ไม่มีอาการ ไม่มี CVD)');
+       const echoNeed=S.sym.dysp||S.sym.hfsign||S.sym.murmur||(S.mod.valve&&S.mod.vSev);
+       if(echoNeed)R(recs,'1','🔊','ทำ echocardiography: เหนื่อยใหม่/อาการแสดง HF/สงสัยลิ้นหัวใจผิดปกติปานกลาง–รุนแรง');
+       else R(recs,'3nb','🔊','ไม่แนะนำ echo ประเมิน LV เป็นประจำในผู้ป่วยที่ไม่มีอาการและคงที่');
+       R(recs,'info','🎯','พิจารณาเริ่ม GDMT เพื่อลดความเสี่ยงหัวใจระยะยาว ตามข้อบ่งชี้');
+       const fcLab=S.fc.mode==='unknown'?'ไม่ทราบ':`DASI ${d.dasi.toFixed(1)} (≈ ${d.mets.toFixed(1)} METs)`;
+       path.push(['สมรรถภาพร่างกาย',`${fcLab} → ${d.fcPoor?'ต่ำ/ไม่ทราบ':'ดี'}`]);
+       R(recs,'2a','🪜','ประเมินสมรรถภาพแบบมีโครงสร้าง (DASI)',fcLab);
+       if(!d.fcPoor){set('go','ผ่าตัดได้ตามแผน','สมรรถภาพร่างกายดี (DASI > 34) ไม่ต้องตรวจหัวใจเพิ่ม');
+         R(recs,'3nb','🏃','ไม่แนะนำ stress test ในผู้ป่วยที่สมรรถภาพเพียงพอ');
+       } else {
+         path.push(['ตรวจเพิ่มจะเปลี่ยนการดูแล ?',S.bio.impact==='yes'?'เปลี่ยน':S.bio.impact==='no'?'ไม่เปลี่ยน':'ยังไม่ระบุ']);
+         if(S.bio.impact==='no'){set('warn','ผ่าตัดได้ หรือพิจารณาทางเลือกอื่น','สมรรถภาพต่ำ แต่การตรวจเพิ่มจะไม่เปลี่ยนการดูแล');
+           R(recs,'info','🔀','ผ่าตัดตามแผน หรือพิจารณาเลื่อนผ่าตัด/รักษาแบบไม่ผ่าตัด/ประคับประคอง ตามการตัดสินใจร่วมกับผู้ป่วย');
+         } else if(S.bio.impact!=='yes'){set('wait','ยังประเมินไม่ครบ','ระบุว่าการตรวจเพิ่มเติมจะเปลี่ยนการดูแลหรือไม่');
+         } else {
+           if(eligBio)R(recs,'2a','🧪','ตรวจ BNP หรือ NT-proBNP ก่อนผ่าตัด'),R(recs,'2b','🧪','อาจพิจารณาตรวจ troponin ก่อนผ่าตัด');
+           else R(recs,'info','🧪','ตรวจ BNP/NT-proBNP ก่อนผ่าตัดเพื่อเสริมการประเมิน');
+           if(!d.bioDone){path.push(['Biomarker','ยังไม่ได้ตรวจ']);set('wait','ส่งตรวจ BNP / NT-proBNP ก่อนตัดสินใจ','สมรรถภาพต่ำ/ไม่ทราบ และผลตรวจจะเปลี่ยนการดูแล');}
+           else {
+             const bl=[d.bnp!=null?`BNP ${d.bnp}`:'',d.nt!=null?`NT-proBNP ${d.nt}`:'',S.bio.trop!=='nd'?`Trop ${S.bio.trop==='high'?'สูง':'ปกติ'}`:''].filter(Boolean).join(', ');
+             path.push(['Biomarker',`${bl} → ${d.bioAbn?'ผิดปกติ':'ปกติ'}`]);
+             if(!d.bioAbn)set('go','ผ่าตัดได้ตามแผน','Biomarker ปกติ');
+             else{
+               R(recs,'info','👥','ปรึกษาทีมสหสาขาถึงประโยชน์/ความเสี่ยงของการตรวจหัวใจเพิ่มเติม');
+               R(recs,'2b','📉','พิจารณาเฝ้าระวัง troponin หลังผ่าตัด');
+               path.push(['ทีมสหสาขา',S.ev.dec==='pursue'?'ตรวจเพิ่ม':S.ev.dec==='defer'?'ไม่ตรวจเพิ่ม':'ยังไม่ตัดสินใจ']);
+               if(S.ev.dec==='defer'){set('warn','พิจารณาทางเลือก หรือผ่าตัดโดยเฝ้าระวังใกล้ชิด','Biomarker ผิดปกติ ทีมตัดสินใจไม่ตรวจเพิ่ม');
+                 R(recs,'info','🔀','พิจารณาเลื่อนผ่าตัด รักษาแบบไม่ผ่าตัด/หัตถการ ประคับประคอง หรือผ่าตัดต่อ');}
+               else if(S.ev.dec==='pursue'){
+                 R(recs,'info','🔊','พิจารณา echocardiography');R(recs,'2b','🏃','พิจารณา noninvasive stress test');R(recs,'2b','🖥️','พิจารณา CCTA');
+                 path.push(['ผลตรวจหัวใจ',S.ev.find==='low'?'ความเสี่ยงต่ำ':S.ev.find==='high'?'ความเสี่ยงสูง':'รอผล']);
+                 if(S.ev.find==='low')set('go','ผ่าตัดได้ตามแผน','ผลตรวจหัวใจเพิ่มเติมความเสี่ยงต่ำ');
+                 else if(S.ev.find==='high'){set('stop','พิจารณาทางเลือกก่อนผ่าตัด','ผลตรวจบ่งชี้ left main หรือหลายเส้นเลือด');
+                   R(recs,'2a','🫀','CCD ที่มี left main stenosis ≥ 50%: revascularization และเลื่อนผ่าตัด elective');
+                   R(recs,'3nb','🪡','ไม่แนะนำ revascularization เป็นประจำในโรคที่ไม่ใช่ left main');}
+                 else set('wait','รอผลตรวจหัวใจเพิ่มเติม','ทีมตัดสินใจตรวจเพิ่ม');
+               } else set('wait','รอการตัดสินใจของทีมสหสาขา','Biomarker ผิดปกติ');
+             }
+           }
+         }
+       }
+     }
+    }
+   }
+  }
+
+  /* ---- condition-specific (non-emergency) ---- */
+  let escR=null;const escalate=(v,t,r)=>{const rank={go:0,wait:1,warn:2,stop:3};if(rank[v]>rank[verdict]){set(v,t,r);escR=r}};
+  if(!d.emerg&&d.any&&!d.acute){
+   const m=S.mod;
+   if(m.valve){const sev=m.vSev==='severe',asx=m.vSym==='no',lv=m.vLV==='yes';
+    if(m.vType==='as'){
+      if(sev){R(special,'1','🚪','Severe AS: ประเมินความจำเป็นในการทำ aortic valve intervention ก่อนผ่าตัด elective');}
+      R(special,'1','🔊','สงสัย AS ปานกลาง–รุนแรง + ผ่าตัดความเสี่ยงสูง: ทำ echo ก่อนผ่าตัด elective');
+      if(asx&&lv)R(special,'2a','✅','AS ไม่มีอาการ, LV ปกติ (echo ใน 1 ปี): ผ่าตัด elective ความเสี่ยงต่ำได้');
+      if(sev&&elective&&!(asx&&lv&&!d.elevated))escalate('stop','ปรึกษาโรคหัวใจก่อนผ่าตัด','Severe AS — พิจารณาแก้ไขลิ้นหัวใจก่อน');
+    } else if(m.vType==='ms'){
+      if(sev){R(special,'1','🚪','Severe MS: ประเมินความจำเป็นในการทำ mitral valve intervention ก่อนผ่าตัด elective');
+        R(special,'2a','📟','ถ้าแก้ไขลิ้นไม่ได้: invasive hemodynamic monitoring รอบผ่าตัด');
+        R(special,'2b','💓','ถ้าแก้ไขลิ้นไม่ได้: ควบคุมอัตราการเต้นหัวใจ (beta blocker, CCB, ivabradine, digoxin)');
+        if(elective)escalate('stop','ปรึกษาโรคหัวใจก่อนผ่าตัด','Severe MS — พิจารณาแก้ไขลิ้นหัวใจก่อน');}
+    } else {
+      R(special,'1','🔊','สงสัยลิ้นรั่วปานกลาง–รุนแรง: ทำ echo ก่อนผ่าตัด elective');
+      if(!asx||!lv){R(special,'1','🚪','ถ้าเข้าเกณฑ์ผ่าตัดลิ้นหัวใจ: พิจารณาแก้ไขลิ้นก่อนผ่าตัด elective ความเสี่ยงสูง');
+        if(elective&&d.elevated)escalate('warn','ปรึกษาโรคหัวใจเรื่องลิ้นหัวใจก่อน','ลิ้นรั่วมีอาการหรือ LV ผิดปกติ');}
+      else R(special,'2a','✅',m.vType==='mr'?'MR ไม่มีอาการ, LV ปกติ, PASP < 50 mmHg: ผ่าตัด elective ได้':'AR ไม่มีอาการ, LVEF > 55%: ผ่าตัด elective ได้');
+    }}
+   if(m.ph){if(m.phPAH)R(special,'1','💊','ให้ยารักษา PAH ต่อเนื่องรอบผ่าตัด');
+     if(d.elevated){R(special,'2a','🏥','PH รุนแรง + ผ่าตัดความเสี่ยงสูง: ส่งปรึกษา/ผ่าตัดที่ศูนย์ PH, พิจารณา ICU หลังผ่าตัด');
+       R(special,'2a','📟','Invasive hemodynamic monitoring ระหว่างและหลังผ่าตัด');
+       R(special,'2b','🌬️','Precapillary PH: อาจให้ inhaled pulmonary vasodilator (NO, prostacyclin)');}
+     else R(special,'info','🏥','PH รุนแรง: ปรึกษาทีมที่มีความเชี่ยวชาญ');}
+   if(m.chd)R(special,'info','🧬','โรคหัวใจพิการแต่กำเนิดความเสี่ยงสูง: ปรึกษาทีม ACHD ก่อนผ่าตัด');
+   if(m.pci){const dd=daysSince(m.pciDate), k=m.pciKind;
+     R(special,'1','👥','การจัดการยาต้านเกล็ดเลือดและจังหวะผ่าตัด ให้ทีมสหสาขาตัดสินใจร่วมกับผู้ป่วย');
+     if(k!=='cabg'){
+       if(dd==null)R(special,'info','📅','ระบุวันที่ทำ PCI เพื่อประเมินระยะเวลาที่ปลอดภัย');
+       else if(k==='balloon'){if(dd<14){R(special,'1','⏳',`บอลลูนอย่างเดียว ${dd} วัน: เลื่อนผ่าตัด elective ให้ครบ ≥ 14 วัน`);if(elective||ts)escalate('stop','เลื่อนผ่าตัด','ทำบอลลูนไม่ถึง 14 วัน');}}
+       else{
+         if(dd<=30){R(special,'3h','⛔',`ใส่ stent มา ${dd} วัน (≤ 30 วัน): ผ่าตัด elective ที่ต้องหยุดยาต้านเกล็ดเลือด อาจเป็นอันตราย (stent thrombosis)`);if(elective||ts)escalate('stop','เลื่อนผ่าตัด','ใส่ stent ภายใน 30 วัน');}
+         if(k==='des'){const mo=dd/30.4;
+           if(m.pciInd==='acs'&&mo<12){R(special,'1','⏳',`DES จาก ACS (${mo.toFixed(1)} เดือน): ถ้าต้องหยุดยาต้านเกล็ดเลือด ควรเลื่อนผ่าตัด elective ให้ครบ ≥ 12 เดือน`);if(elective)escalate('stop','เลื่อนผ่าตัด elective','DES จาก ACS ยังไม่ครบ 12 เดือน');}
+           if(m.pciInd==='ccd'&&mo<6){R(special,'2a','⏳',`DES จาก CCD (${mo.toFixed(1)} เดือน): ควรเลื่อนผ่าตัด elective ให้ครบ ≥ 6 เดือน`);if(elective)escalate('stop','เลื่อนผ่าตัด elective','DES จาก CCD ยังไม่ครบ 6 เดือน');}
+           if(ts&&mo>=3&&((m.pciInd==='acs'&&mo<12)||(m.pciInd==='ccd'&&mo<6)))R(special,'2b','📆','ผ่าตัด time-sensitive: อาจผ่าตัดได้เมื่อ ≥ 3 เดือนหลัง PCI ถ้าความเสี่ยงจากการรอเกินความเสี่ยง MACE');
+           if(ts&&mo<3){R(special,'1','💊','ผ่าตัด time-sensitive ภายใน 3 เดือนหลัง DES: ให้ DAPT ต่อ เว้นแต่ความเสี่ยงเลือดออกสูงกว่า');escalate('warn','ผ่าตัดโดยให้ DAPT ต่อ / ปรึกษาโรคหัวใจ','DES < 3 เดือน');}
+           if(mo<6||(m.pciInd==='acs'&&mo<12))R(special,'2b','💉','ถ้าความเสี่ยงลิ่มเลือดสูงและเลื่อนผ่าตัดไม่ได้: อาจ bridge ด้วยยาต้านเกล็ดเลือดทางหลอดเลือด');
+         }
+         if(k==='bms'&&dd<=30&&ts)R(special,'1','💊','ผ่าตัด time-sensitive ภายใน 30 วันหลัง BMS: ให้ DAPT ต่อ เว้นแต่ความเสี่ยงเลือดออกสูงกว่า');
+       }
+       R(special,'1','💊','ให้ aspirin 75–100 mg ต่อรอบผ่าตัดถ้าทำได้ (เคยทำ PCI)');
+       if(S.meds.oac!=='none')R(special,'1','🔁','ถ้าต้องหยุดยาต้านการแข็งตัวของเลือด ให้ aspirin แทนชั่วคราวจนกลับมาให้ยาเดิมได้');
+     }}
+   if(m.stroke){const dd=daysSince(m.strokeDate);
+     if(dd!=null&&dd<90){R(special,'2a','🧠',`Stroke/TIA ${dd} วันก่อน: ควรเลื่อนผ่าตัด elective ให้ครบ ≥ 3 เดือน`);if(elective)escalate('stop','เลื่อนผ่าตัด elective','Stroke/TIA ภายใน 3 เดือน');}
+     else if(dd!=null)R(special,'info','🧠',`Stroke/TIA ${dd} วันก่อน (≥ 3 เดือน)`);
+     else R(special,'info','📅','ระบุวันที่เกิด stroke/TIA เพื่อประเมินจังหวะผ่าตัด');}
+   if(m.cied){R(special,'1','🔋',`วางแผนจัดการ ${m.ciedType==='icd'?'ICD':'pacemaker'} ก่อนผ่าตัดถ้าคาดว่ามี EMI: ระบุชนิด บริษัท และรุ่นของเครื่อง`);
+     if(m.ciedDep&&m.ciedUmb)R(special,'1','🧲','Pacing-dependent + ผ่าตัดเหนือสะดือที่มี EMI: reprogram เป็น asynchronous หรือวางแม่เหล็ก');
+     if(m.ciedType==='icd')R(special,'info','⚡','ICD: ปิด tachy-therapy ระหว่างผ่าตัดถ้ามี EMI และติดแผ่น defibrillator สำรอง');}
+   if(d.frail){R(special,'2a','🧓',`เปราะบาง (FRAIL ${d.frailScore}/5): ใช้ประกอบการประเมินความเสี่ยงและการดูแล`);
+     R(special,'info','🤝','พูดคุยเป้าหมายการรักษาและตัดสินใจร่วมกับผู้ป่วย/ครอบครัว · พิจารณา prehabilitation (ออกกำลังกาย โภชนาการ)');}
+   else if(d.age>=65&&d.elevated&&d.frailScore===0)R(special,'2a','🧓','อายุ ≥ 65 ปี + ผ่าตัดความเสี่ยงสูง: ประเมินภาวะเปราะบางด้วยเครื่องมือมาตรฐาน');
+   if(S.cvd.hf||S.rcri.chf)R(special,'2a','💧','HF ที่คงที่: ให้ GDMT ต่อรอบผ่าตัด (ยกเว้น SGLT2i)');
+  }
+
+  /* ---- BP ---- */
+  const sbp=num(S.oth.sbp),dbp=num(S.oth.dbp);
+  if((sbp!=null&&sbp>=180)||(dbp!=null&&dbp>=110)){
+    if(elective&&d.elevated&&d.rcri>=1&&!d.emerg){R(meds,'2b','🩺',`ความดัน ${sbp??'-'}/${dbp??'-'} (≥ 180/110) + ผ่าตัดความเสี่ยงสูง + ปัจจัยเสี่ยง RCRI: พิจารณาเลื่อนผ่าตัดเพื่อคุมความดัน`);escalate('warn','พิจารณาคุมความดันก่อนผ่าตัด','ความดัน ≥ 180/110 mmHg');}
+    else R(meds,'info','🩺',`ความดัน ${sbp??'-'}/${dbp??'-'} mmHg สูง: ปรับยาและติดตาม`);
+  }
+  if(escR)path.push(['ข้อพิจารณาเฉพาะ',escR]);
+  /* ---- meds ---- */
+  const M=S.meds;
+  if(M.bb)R(meds,'1','🫀','Beta blocker: ให้ต่อเนื่องรอบผ่าตัด');
+  R(meds,'3h','🚫','ไม่เริ่ม beta blocker ในวันผ่าตัด (เพิ่มอัตราตาย) · ถ้ามีข้อบ่งชี้ใหม่ เริ่มล่วงหน้า > 7 วัน (2b)');
+  if(M.statin)R(meds,'1','💊','Statin: ให้ต่อเนื่อง');
+  else if(M.statinNeed)R(meds,'1','💊','เริ่ม statin รอบผ่าตัดโดยตั้งใจให้ใช้ระยะยาว');
+  if(M.raas==='htn')R(meds,'2b','⏸️','ACEI/ARB สำหรับความดัน (ความดันคุมได้ + ผ่าตัดความเสี่ยงสูง): อาจงด 24 ชม. ก่อนผ่าตัด เพื่อลดความดันต่ำระหว่างผ่าตัด');
+  if(M.raas==='hfref')R(meds,'2a','▶️','RAAS inhibitor สำหรับ HFrEF: ให้ต่อเนื่องรอบผ่าตัด');
+  R(meds,'2a','🩺','ยาลดความดันอื่นๆ: ให้ต่อรอบผ่าตัด (ระวังในผู้สูงอายุ/ความดันต่ำ) และเริ่มยากลับโดยเร็วหลังผ่าตัด');
+  if(M.sglt==='cde')R(meds,'1','⏸️','Empagliflozin/Dapagliflozin/Canagliflozin: หยุด ≥ 3 วันก่อนผ่าตัด (ป้องกัน euglycemic DKA)');
+  if(M.sglt==='ertu')R(meds,'1','⏸️','Ertugliflozin: หยุด ≥ 4 วันก่อนผ่าตัด (ป้องกัน euglycemic DKA)');
+  if(M.glp==='weekly')R(meds,'info','⏸️','GLP-1 agonist รายสัปดาห์: งด > 1 สัปดาห์ก่อนผ่าตัด elective (ลดความเสี่ยงสำลัก)');
+  if(M.glp==='daily')R(meds,'info','⏸️','GLP-1 agonist รายวัน: งดวันก่อนผ่าตัด');
+  if(M.met)R(meds,'2a','▶️','Metformin: ให้ต่อรอบผ่าตัดได้');
+  if(S.oth.a1c)R(meds,'2a','🩸','ตรวจ HbA1c ก่อนผ่าตัด (ยังไม่มีผลใน 3 เดือน)');
+  if(M.p2y!=='none'){const t={clopidogrel:'5–7',prasugrel:'7–10',ticagrelor:'3–5'}[M.p2y];R(meds,'info','💊',`${M.p2y[0].toUpperCase()+M.p2y.slice(1)}: ถ้าต้องหยุด ใช้เวลา ${t} วันให้เกล็ดเลือดกลับมาทำงาน (ตัดสินใจร่วมกับทีม)`);}
+  if(M.asa&&!S.mod.pci){R(meds,'2b','💊','Aspirin (ไม่เคย PCI): อาจให้ต่อในรายที่ความเสี่ยงหัวใจสูงกว่าเลือดออก · หยุดแล้วเกล็ดเลือดกลับมาใน ~4 วัน');}
+  if(!M.asa&&(S.cvd.cad)&&!S.mod.pci)R(meds,'3nb','🚫','CAD ไม่เคย PCI: ไม่แนะนำเริ่ม aspirin ก่อนผ่าตัดเป็นประจำ');
+  R(meds,'3nb','🚫','ไม่แนะนำเริ่ม clonidine เพื่อลดความเสี่ยงหัวใจ');
+  let oac=null;
+  if(M.oac!=='none'){oac=oacPlan(d);
+    R(meds,'1','👥','หยุดยาต้านการแข็งตัวของเลือดตามเวลา โดยทีมสหสาขา (ดูตารางด้านล่าง)');
+    if(M.oac==='warf'&&M.thr==='high')R(meds,'2a','💉','ความเสี่ยงลิ่มเลือดสูง + หยุด warfarin: bridge ด้วย heparin ก่อนผ่าตัดได้');
+    else R(meds,'3h','🚫','ไม่ควร bridge เป็นประจำ (เพิ่มเลือดออก)');
+    R(meds,'2a','▶️','เริ่มยากลับเมื่อห้ามเลือดได้แล้ว');}
+  if(S.oth.ida)R(meds,'2a','🧲','ให้ธาตุเหล็ก (กินหรือฉีด) ก่อนผ่าตัด elective เพื่อลดการให้เลือด');
+  if(S.oth.blood)R(meds,'2a','💉','ผ่าตัดที่คาดว่าเสียเลือด: ให้ tranexamic acid');
+  R(meds,'2a','😴','คัดกรอง OSA ด้วยแบบสอบถามมาตรฐาน (เช่น STOP-Bang)');
+
+  /* ---- post-op ---- */
+  R(post,'1','📉','รักษา MAP ≥ 60–65 mmHg หรือ SBP ≥ 90 mmHg ระหว่างผ่าตัด และแก้ไขความดันต่ำหลังผ่าตัด');
+  if(!d.emerg&&d.elevated&&(d.anyCVD||d.anySym||(d.age>=65&&d.anyRF)))R(post,'2b','🧪','ตรวจ troponin ที่ 24 และ 48 ชม. หลังผ่าตัด เพื่อหา MINS');
+  else if(!d.elevated)R(post,'3nb','🧪','ไม่ตรวจ troponin หลังผ่าตัดเป็นประจำ ถ้าไม่มีอาการ');
+  R(post,'2a','🩺','ถ้าพบ MINS: นัดติดตามปรับปัจจัยเสี่ยงหัวใจ · อาจพิจารณายาต้านลิ่มเลือด (2b)');
+  R(post,'1','💓','ถ้าเกิด AF ใหม่: หาสาเหตุ (sepsis, ซีด, ปวด) พิจารณายาต้านการแข็งตัว และนัดติดตามหลังจำหน่าย');
+  if(S.pt.urg==='urgent'&&!d.emerg)R(recs,'info','⏱️','ผ่าตัดเร่งด่วน: ตรวจเพิ่มเฉพาะที่ไม่ทำให้การผ่าตัดล่าช้า');
+  return {d,path,recs,special,meds,post,verdict,title,reason,oac};
+}
+
+function oacPlan(d){
+  const M=S.meds,b=S.pt.bleed,c=d.crcl;const days=[-6,-5,-4,-3,-2,-1,0,1,2,3,4];
+  let row=[],name='',note='';
+  if(M.oac==='xa'||M.oac==='dabi'){
+    name=M.oac==='xa'?'Apixaban / Rivaroxaban / Edoxaban':'Dabigatran';
+    let pre=0,res=0;
+    if(b==='high'){res=3;pre=M.oac==='xa'?(c!=null&&c<30?3:2):(c!=null&&c<50?4:2);}
+    else if(b==='lowmod'){res=1;pre=M.oac==='xa'?(c!=null&&c<30?2:1):(c!=null&&c<50?2:1);}
+    row=days.map(x=>b==='minimal'?'take':x<0?(x>=-pre?'hold':'take'):x===0?'hold':(x<res?'hold':'take'));
+    if(c==null)note='ยังไม่ทราบ CrCl — ตารางนี้สมมติว่าไตปกติ';
+    else note=`CrCl ≈ ${Math.round(c)} mL/min`;
+  } else {
+    name='Warfarin';
+    const hi=M.thr==='high';
+    row=days.map(x=>{if(b==='minimal')return'take';
+      if(x===-6)return'take';if(x<0)return hi&&x>=-3?'bridge':'hold';if(x===0)return'hold';
+      if(hi&&((b==='high'&&x>=3)||(b==='lowmod'&&x>=2)))return'lmwh';return'take';});
+    note=b==='minimal'?'หัตถการเลือดออกน้อยมาก: ให้ยาต่อ ตรวจ INR ให้อยู่ในช่วงรักษา':'ตรวจ INR วันก่อนผ่าตัด';
+  }
+  return {name,days,row,note};
+}
+
+/* ---------------- summary view ---------------- */
+const COR={'1':['c1','Class 1'],'2a':['c2a','2a'],'2b':['c2b','2b'],'3nb':['c3nb','3: ไม่มีประโยชน์'],'3h':['c3h','3: อันตราย'],'info':['info','ข้อมูล']};
+const recHTML=r=>`<div class="rec"><span class="ri" aria-hidden="true">${r.ic}</span><span class="rt">${esc(r.t)}${r.sm?`<small>${esc(r.sm)}</small>`:''}</span><span class="cor ${COR[r.cor][0]}">${COR[r.cor][1]}</span></div>`;
+const VI={go:'✓',warn:'!',stop:'✋',wait:'⏳'};
+V.sum=()=>{const P=plan();const pt=S.pt;
+ const urgTH={emergency:'ฉุกเฉิน',urgent:'เร่งด่วน',timesens:'รอได้ ≤ 3 เดือน',elective:'Elective'}[pt.urg];
+ return `<div class="verdict ${P.verdict}"><div class="vi" aria-hidden="true">${VI[P.verdict]}</div><div><h2>${esc(P.title)}</h2><p>${esc(P.reason)}</p>
+ <p style="font-size:13px;opacity:.8">${[pt.age&&pt.age+' ปี',pt.sex==='m'?'ชาย':pt.sex==='f'?'หญิง':'',pt.op,urgTH].filter(Boolean).map(esc).join(' · ')}</p></div></div>
+<div class="card"><h3>เส้นทางตามอัลกอริทึม</h3><ol class="path">${P.path.map((p,i)=>`<li${i===P.path.length-1?' class="end"':''}><span class="dot">${i+1}</span><div class="q">${esc(p[0])}</div><div class="a">${esc(p[1])}</div></li>`).join('')}</ol></div>
+<div class="card"><h3>คำแนะนำหลัก</h3>${P.recs.map(recHTML).join('')}</div>
+${P.special.length?`<div class="card"><h3>คำแนะนำตามโรคร่วม</h3>${P.special.map(recHTML).join('')}</div>`:''}
+<div class="card"><h3>ยาและการเตรียมตัว</h3>${P.meds.map(recHTML).join('')}
+${P.oac?`<div class="sub"><div class="lab">ตารางยา ${esc(P.oac.name)} · เลือดออก${{minimal:'น้อยมาก',lowmod:'ต่ำ–ปานกลาง',high:'สูง'}[pt.bleed]}</div>
+<div class="tl"><table><tr>${P.oac.days.map(x=>`<th>${x===0?'ผ่าตัด':(x>0?'+':'')+x}</th>`).join('')}</tr>
+<tr>${P.oac.row.map((c,i)=>`<td class="${c}${P.oac.days[i]===0?' op':''}" title="${c}">${{take:'💊',hold:'✕',bridge:'H',lmwh:'💊+L'}[c]}</td>`).join('')}</tr></table></div>
+<div class="tl-key"><span><i style="background:var(--go-soft);border:1px solid var(--go)"></i>ให้ยา</span><span><i style="background:var(--stop)"></i>งดยา</span>${P.oac.row.includes('bridge')?'<span><i style="background:var(--bridge)"></i>Heparin bridge (INR ต่ำกว่าเป้า)</span>':''}${P.oac.row.includes('lmwh')?'<span><i style="background:var(--lmwh)"></i>Warfarin + LMWH จน INR ถึงเป้า</span>':''}</div>
+<p class="hint" style="margin:6px 0 0">${esc(P.oac.note)} · ตัดสินใจร่วมกับทีม โดยเฉพาะผู้ป่วยเสี่ยงลิ่มเลือดสูง</p></div>`:''}</div>
+<div class="card"><h3>ระหว่างและหลังผ่าตัด</h3>${P.post.map(recHTML).join('')}
+<div class="legend"><span><span class="cor c1">1</span>แนะนำ</span><span><span class="cor c2a">2a</span>ควรทำ</span><span><span class="cor c2b">2b</span>อาจพิจารณา</span><span><span class="cor c3nb">3</span>ไม่มีประโยชน์</span><span><span class="cor c3h">3</span>อันตราย</span></div></div>
+<div class="card"><h3>บันทึกสำหรับเวชระเบียน</h3><div class="note" id="note">${esc(noteText(P))}</div>
+<div class="actions"><button class="btn ghost" data-act="copy">📋 คัดลอกบันทึก</button><button class="btn ghost" data-act="print">🖨️ พิมพ์</button><button class="btn ghost" data-act="reset">↺ ผู้ป่วยใหม่</button></div></div>
+<p class="disc">เครื่องมือช่วยตัดสินใจ อ้างอิง 2026 AHA/ACC/ACS/ASNC/HRS/SCA/SCCT/SCMR/SVM Guideline for Perioperative Cardiovascular Management for Noncardiac Surgery (Thompson et al., JACC 2026;88:1543–1643) · ไม่ใช้แทนการตัดสินใจทางคลินิก ตรวจสอบขนาดยาและข้อห้ามก่อนใช้ทุกครั้ง</p>`};
+
+function noteText(P){const d=P.d,pt=S.pt;const L=[];const cl=c=>COR[c][1];
+ L.push('ประเมินหัวใจก่อนผ่าตัด (AHA/ACC 2026)');
+ L.push(`ผู้ป่วย: ${pt.age||'-'} ปี ${pt.sex==='m'?'ชาย':pt.sex==='f'?'หญิง':''} | ผ่าตัด: ${pt.op||'-'} | ${({emergency:'Emergency',urgent:'Urgent',timesens:'Time-sensitive',elective:'Elective'})[pt.urg]}`);
+ if(!d.emerg&&d.any&&!d.acute)L.push(`RCRI ${d.rcri}${d.calc!=null?` | MACE calc ${d.calc}%`:''}${S.fc.mode==='dasi'?` | DASI ${d.dasi.toFixed(1)} (~${d.mets.toFixed(1)} METs)`:' | FC: unknown'}${d.frailScore?` | FRAIL ${d.frailScore}/5`:''}`);
+ if(d.bnp!=null||d.nt!=null)L.push(`BNP ${d.bnp??'-'} | NT-proBNP ${d.nt??'-'}`);
+ L.push('');L.push(`สรุป: ${P.title} — ${P.reason}`);
+ const sec=(h,a)=>{if(a.length){L.push('');L.push(h);a.forEach(r=>L.push(`- ${r.t}${r.cor!=='info'?` [${cl(r.cor)}]`:''}`));}};
+ sec('คำแนะนำ:',P.recs);sec('ตามโรคร่วม:',P.special);sec('ยา:',P.meds.filter(r=>!/ไม่เริ่ม beta|clonidine|OSA/.test(r.t)));
+ if(P.oac){L.push(`- ${P.oac.name}: งดยา ${P.oac.row.map((c,i)=>(c==='hold'||c==='bridge')?P.oac.days[i]:null).filter(x=>x!==null).map(x=>x===0?'D0':'D'+(x>0?'+':'')+x).join(', ')||'ไม่ต้องงด'}${P.oac.row.includes('bridge')?' (heparin bridge D-3 ถึง D-1)':''}`);}
+ sec('ระหว่าง/หลังผ่าตัด:',P.post);
+ return L.join('\n');}
+
+/* ---------------- render & events ---------------- */
+function render(){
+  const r=route(); const id=r[cur]||'sum';
+  $('#app').innerHTML=V[id]();
+  $('#rail').innerHTML=STEPS.map(s=>{const i=r.indexOf(s.id);const cls=i<0?'skip':i<cur?'done':i===cur?'cur':'';
+    return `<button class="node ${cls}" ${i<0?'disabled':''} data-go="${i}" aria-current="${i===cur?'step':'false'}"><span class="bar"></span><span>${s.short}</span></button>`}).join('');
+  $('#back').disabled=cur===0;
+  const last=id==='sum';
+  $('#next').textContent=last?'แก้ไขข้อมูล':r[cur+1]==='sum'?'ดูสรุปคำแนะนำ':'ถัดไป';
+  if(!last){const P=plan();$('#peek').innerHTML=`ผลเบื้องต้น: <b>${esc(P.title)}</b>`;}else $('#peek').innerHTML='';
+}
+function rerenderKeep(){const y=window.scrollY;render();window.scrollTo(0,y)}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-tog],[data-pick],[data-go],[data-act]');if(!t)return;
+  if(t.dataset.tog){put(t.dataset.tog,!get(t.dataset.tog));clampCur();rerenderKeep();}
+  else if(t.dataset.pick){put(t.dataset.pick,t.dataset.v);clampCur();rerenderKeep();}
+  else if(t.dataset.go){cur=+t.dataset.go;render();window.scrollTo(0,0);}
+  else if(t.dataset.act==='copy'){const tx=$('#note').textContent;(navigator.clipboard?navigator.clipboard.writeText(tx):Promise.reject()).then(()=>toast('คัดลอกบันทึกแล้ว')).catch(()=>{const ta=document.createElement('textarea');ta.value=tx;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('คัดลอกบันทึกแล้ว')}catch(_){toast('คัดลอกไม่ได้ — เลือกข้อความเอง')}ta.remove();});}
+  else if(t.dataset.act==='print')window.print();
+  else if(t.dataset.act==='reset'){S=fresh();cur=0;render();window.scrollTo(0,0);toast('เริ่มผู้ป่วยใหม่');}
+});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.num){put(t.dataset.num,t.value);clampCur();rerenderKeep();}});
+document.addEventListener('input',e=>{const t=e.target;if(t.dataset.num)put(t.dataset.num,t.value);});
+function clampCur(){const r=route();if(cur>r.length-1)cur=r.length-1;}
+$('#next').onclick=()=>{const r=route();if(r[cur]==='sum'){cur=0}else cur=Math.min(cur+1,r.length-1);render();window.scrollTo(0,0);};
+$('#back').onclick=()=>{cur=Math.max(0,cur-1);render();window.scrollTo(0,0);};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1800);}
+render();
+</script>
+</body>
+</html>
